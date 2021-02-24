@@ -1,0 +1,3 @@
+rich
+dataclasses_json
+requests

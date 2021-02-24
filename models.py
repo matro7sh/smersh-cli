@@ -9,6 +9,10 @@ class Model:
     def get(api, id):
         raise NotImplementedError
 
+    @staticmethod
+    def getAll(api):
+        raise NotImplementedError
+
 
 @dataclass_json(letter_case=LetterCase.CAMEL)
 @dataclass
@@ -50,3 +54,46 @@ class User(Model):
     def get(api, id):
         return User.from_dict(api.get(f'/api/users/{id}'))
 
+
+@dataclass_json
+@dataclass
+class Host(Model):
+
+    id: int
+    name: str
+    technology: str
+
+    @staticmethod
+    def getAll(api):
+        hosts = []
+        response = api.get('/api/hosts')
+
+        for host in response:
+            hosts.append(Host.from_dict(host))
+
+        return hosts
+
+
+
+@dataclass_json
+@dataclass
+class Impact(Model):
+
+    id: int
+    name: str
+
+    @staticmethod
+    def get(api, id):
+        return Impact.from_dict(api.get(f'/api/impacts/{id}'))
+
+
+@dataclass_json
+@dataclass
+class MissionType(Model):
+
+    id: int
+    name: str
+
+    @staticmethod
+    def get(api, id):
+        return MissionType.from_dict(api.get(f'/api/mission_types/{id}'))

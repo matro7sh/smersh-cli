@@ -7,7 +7,7 @@ from rich import box
 from rich.text import Text
 
 from api import SmershAPI
-from models import User, Mission
+from models import User, Mission, Host
 
 
 def parse_args():
@@ -37,6 +37,17 @@ def get_missions_table(missions):
     return table
 
 
+def get_hosts_table(hosts):
+    console.print(hosts);
+    table = Table(title='All Hosts', box=box.ASCII)
+    table.add_column('ID', justify='center', style='cyan')
+    table.add_column('Name', justify='center', style='magenta')
+    table.add_column('Technology', justify='center', style='yellow')
+    for host in hosts:
+        table.add_row(str(host.id), host.name, host.technology)
+    return table
+
+
 if __name__ == '__main__':
     args = parse_args()
     console = Console()
@@ -54,6 +65,9 @@ if __name__ == '__main__':
             console.print(':cross_mark: Unable to log you in. Your credentials seem invalid')
 
     user = User.get(api, api.authenticated_user_id)
+    host = Host.getAll(api)
+
+    hosts = {}
     missions = {}
 
     for mission in user.missions:
@@ -62,6 +76,8 @@ if __name__ == '__main__':
 
     missions_table = get_missions_table(missions.values())
     console.print(missions_table)
+    hosts_table = get_hosts_table(hosts)
+    console.print(hosts_table)
 
     selected_mission_id = None
 
