@@ -65,7 +65,7 @@ if __name__ == '__main__':
             console.print(':cross_mark: Unable to log you in. Your credentials seem invalid')
 
     user = User.get(api, api.authenticated_user_id)
-    host = Host.getAll(api)
+    host = Host.all(api)
 
     hosts = {}
     missions = {}

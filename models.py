@@ -10,7 +10,7 @@ class Model:
         raise NotImplementedError
 
     @staticmethod
-    def getAll(api):
+    def all(api):
         raise NotImplementedError
 
 
@@ -64,7 +64,7 @@ class Host(Model):
     technology: str
 
     @staticmethod
-    def getAll(api):
+    def all(api):
         hosts = []
         response = api.get('/api/hosts')
 
