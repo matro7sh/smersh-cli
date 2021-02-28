@@ -45,6 +45,9 @@ class SmershAPI:
         if response.status_code == 400:
             raise requests.HTTPError('working as designed')
 
+        if response.status_code >= 500:
+            raise requests.HTTPError('Well, I guess the server died ¯\\_(ツ)_/¯', response=response)
+
         try:
             return clean_ldjson(response.json())
         except json.JSONDecodeError:

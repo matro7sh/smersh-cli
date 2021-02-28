@@ -72,9 +72,8 @@ if __name__ == '__main__':
         except requests.exceptions.ConnectionError:
             console.print("[red]Oh no. I can't connect to the specified URL. Please check there is no typo and that "
                           "the host accepts connections. Then try again.")
-
-    hosts = {}
-    missions = {}
+        except requests.exceptions.HTTPError as e:
+            console.print(f'[red]HTTP error {e.response.status_code}: {e}')
 
     for mission in user.missions:
         mission_full = Mission.get(api, mission.id)
