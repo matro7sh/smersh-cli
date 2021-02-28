@@ -287,6 +287,9 @@ class Vuln(Model):
 
     ENDPOINT_NAME = 'vulns'
 
+    name: Optional[str] = None
+    description: Optional[str] = None
+    remediation: Optional[str] = None
     vuln_type: Optional['VulnType'] = None
     impact: Optional['Impact'] = None
     host_vulns: Optional[List['HostVuln']] = None
