@@ -15,13 +15,13 @@ class SmershAPI:
         self.user_agent = user_agent
         self.token = None
 
-    def request(self, method, path, body=None):
+    def request(self, method, path, body=None, content_type='application/ld+json'):
         if path[0] != '/':
             path = '/' + path
 
         headers = {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
+            'Accept': 'application/ld+json',
+            'Content-Type': content_type,
             'User-Agent': self.user_agent
         }
 
@@ -55,7 +55,7 @@ class SmershAPI:
         return self.request('PUT', path, body)
 
     def patch(self, path, body=None):
-        return self.request('PATCH', path, body)
+        return self.request('PATCH', path, body, content_type='application/merge-patch+json')
 
     def delete(self, path, body=None):
         return self.request('DELETE', path, body)
