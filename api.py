@@ -2,6 +2,8 @@ import requests
 import base64
 import json
 
+from utils.json import clean_ldjson
+
 
 class SmershAPI:
 
@@ -15,13 +17,13 @@ class SmershAPI:
         self.user_agent = user_agent
         self.token = None
 
-    def request(self, method, path, body=None):
+    def request(self, method, path, body=None, content_type='application/ld+json'):
         if path[0] != '/':
             path = '/' + path
 
         headers = {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
+            'Accept': 'application/ld+json',
+            'Content-Type': content_type,
             'User-Agent': self.user_agent
         }
 
@@ -37,7 +39,16 @@ class SmershAPI:
         if response.status_code == 405:
             raise requests.HTTPError
 
-        return response.json()
+        if response.status_code == 404:
+            raise requests.HTTPError('Resource not found')
+
+        if response.status_code == 400:
+            raise requests.HTTPError('working as designed')
+
+        try:
+            return clean_ldjson(response.json())
+        except json.JSONDecodeError:
+            return None
 
     def get(self, path, body=None):
         return self.request('GET', path, body)
@@ -49,7 +60,7 @@ class SmershAPI:
         return self.request('PUT', path, body)
 
     def patch(self, path, body=None):
-        return self.request('PATCH', path, body)
+        return self.request('PATCH', path, body, content_type='application/merge-patch+json')
 
     def delete(self, path, body=None):
         return self.request('DELETE', path, body)
