@@ -64,13 +64,14 @@ if __name__ == '__main__':
         username = console.input('Enter your username: ')
         password = console.input('Enter your password (will not be echoed): ', password=True)
 
-        if api.authenticate(username, password):
-            console.print(':heavy_check_mark: Successfully logged in')
-        else:
-            console.print(':cross_mark: Unable to log you in. Your credentials seem invalid')
-
-    user = User.get(api, api.authenticated_user_id)
-    host = Host.all(api)
+        try:
+            if api.authenticate(username, password):
+                console.print(':heavy_check_mark: Successfully logged in')
+            else:
+                console.print(':cross_mark: Unable to log you in. Your credentials seem invalid')
+        except requests.exceptions.ConnectionError:
+            console.print("[red]Oh no. I can't connect to the specified URL. Please check there is no typo and that "
+                          "the host accepts connections. Then try again.")
 
     hosts = {}
     missions = {}
