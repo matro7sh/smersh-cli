@@ -48,12 +48,17 @@ def get_hosts_table(hosts):
     return table
 
 
+def print_hello():
+    # TODO: Replace this by a beautiful ASCII art picture ?
+    console.print(Panel(Text('Welcome to the SMERSH Python client', justify='center')))
+
+
 if __name__ == '__main__':
     args = parse_args()
     console = Console()
     api = SmershAPI(args.url)
 
-    console.print(Panel(Text('Welcome to the SMERSH Python client', justify='center')))
+    print_hello()
 
     while not api.authenticated:
         username = console.input('Enter your username: ')
