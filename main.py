@@ -1,13 +1,47 @@
 import argparse
+
+import requests
 from rich.console import Console
 from rich.layout import Layout
 from rich.table import Table
 from rich.panel import Panel
 from rich import box
 from rich.text import Text
+from cmd2 import Cmd, with_argparser
 
 from api import SmershAPI
 from models import User, Mission, Host
+
+
+def get_show_parser():
+    parser = argparse.ArgumentParser()
+
+    return parser
+
+
+class App(Cmd):
+
+    def __init__(self, api):
+        super().__init__()
+        self.api = api
+        self.user = User.get(api, api.authenticated_user_id)
+
+        self.remove_useless_buitlins()
+
+    def remove_useless_buitlins(self):
+        """Remove all useless builtins command from cmd2"""
+
+        delattr(self, 'do_edit')
+        # delattr(self, 'do_ipy')
+        # delattr(self, 'do_py')
+        delattr(self, 'do_run_pyscript')
+        delattr(self, 'do_run_script')
+        delattr(self, 'do__relative_run_script')
+        delattr(self, 'do_shell')
+
+    @with_argparser(get_show_parser())
+    def do_show(self):
+        ...
 
 
 def parse_args():
@@ -16,36 +50,6 @@ def parse_args():
     parser.add_argument('url', type=str, help='The URL of the SMERSH backend server')
 
     return parser.parse_args()
-
-
-def get_missions_table(missions):
-    table = Table(title='Current missions', box=box.ASCII)
-
-    table.add_column('ID', justify='center', style='cyan')
-    table.add_column('Name', justify='center', style='magenta')
-    table.add_column('Start date', justify='center', style='green')
-    table.add_column('End date', justify='center', style='red')
-
-    for mission in missions:
-        end_date = mission.end_date
-
-        if end_date is None:
-            end_date = 'Undefined'
-
-        table.add_row(str(mission.id), mission.name, mission.start_date, end_date)
-
-    return table
-
-
-def get_hosts_table(hosts):
-    console.print(hosts);
-    table = Table(title='All Hosts', box=box.ASCII)
-    table.add_column('ID', justify='center', style='cyan')
-    table.add_column('Name', justify='center', style='magenta')
-    table.add_column('Technology', justify='center', style='yellow')
-    for host in hosts:
-        table.add_row(str(host.id), host.name, host.technology)
-    return table
 
 
 def print_hello():
@@ -75,35 +79,5 @@ if __name__ == '__main__':
         except requests.exceptions.HTTPError as e:
             console.print(f'[red]HTTP error {e.response.status_code}: {e}')
 
-    for mission in user.missions:
-        mission_full = Mission.get(api, mission.id)
-        missions[mission_full.id] = mission_full
-
-    missions_table = get_missions_table(missions.values())
-    console.print(missions_table)
-    hosts_table = get_hosts_table(hosts)
-    console.print(hosts_table)
-
-    selected_mission_id = None
-
-    while selected_mission_id not in missions:
-        try:
-            selected_mission_id = int(console.input('Please enter the ID of a mission to display: '))
-        except ValueError:
-            selected_mission_id = None
-
-        if selected_mission_id not in missions:
-            console.print(':cross_mark: This ID does not refer to an existing mission')
-
-    selected_mission = missions[selected_mission_id]
-    layout = Layout()
-
-    layout.split(
-        Layout(name='header', size=1),
-        Layout(name='main')
-    )
-
-    layout['header'].update(Text(selected_mission.name, justify='center'))
-
-    console.print(layout)
-
+    app = App(api)
+    app.cmdloop()
