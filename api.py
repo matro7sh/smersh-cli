@@ -40,7 +40,7 @@ class SmershAPI:
             raise requests.HTTPError
 
         if response.status_code == 404:
-            raise requests.HTTPError('Resource not found')
+            raise requests.HTTPError('Resource not found', response=response)
 
         if response.status_code == 400:
             raise requests.HTTPError('working as designed')
