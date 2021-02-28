@@ -35,7 +35,7 @@ def lazy_model(_cls):
         lazy_keys = set()
 
         for field_name, field_type in get_type_hints(cls).items():
-            if is_model(field_type):
+            if (field_name in kvs) and is_model(field_type):
                 value = kvs[field_name]
                 value_type = type(value)
 
