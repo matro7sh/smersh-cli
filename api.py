@@ -37,6 +37,12 @@ class SmershAPI:
         if response.status_code == 405:
             raise requests.HTTPError
 
+        if response.status_code == 404:
+            raise requests.HTTPError('Resource not found')
+
+        if response.status_code == 400:
+            raise requests.HTTPError('working as designed')
+
         return response.json()
 
     def get(self, path, body=None):
