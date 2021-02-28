@@ -29,9 +29,26 @@ def has_ipython():
 def get_show_parser():
     parser = Cmd2ArgumentParser()
 
-    parser.add_argument('model', choices=['mission', 'user', 'client', 'vuln', 'positive_point', 'negative_point'])
-    parser.add_argument('ids', nargs='*', type=int)
-    parser.add_argument('-r', '--raw', action='store_true')
+    parser.add_argument(
+        'model',
+        choices=['mission', 'user', 'client', 'vuln', 'positive_point', 'negative_point'],
+        help='The object type to query information about.'
+    )
+
+    parser.add_argument(
+        'ids',
+        nargs='*',
+        type=int,
+        help='A list of identifiers (separated by spaces) of specific objects to print information about. If this '
+             'list is empty, the program will print every object.'
+    )
+
+    parser.add_argument(
+        '-r',
+        '--raw',
+        action='store_true',
+        help='Whether to print the data in raw (without formatting) or in a table. Default is to print in a table.'
+    )
 
     return parser
 
@@ -52,6 +69,8 @@ class App(Cmd):
 
     @with_argparser(get_show_parser())
     def do_show(self, namespace):
+        """Print information about one or more object"""
+
         model = self.get_model_from_name(namespace.model)
         ids = namespace.ids
 
