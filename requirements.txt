@@ -2,3 +2,4 @@ rich
 dataclasses_json
 requests
 pydantic
+cmd2
