@@ -2,6 +2,8 @@ import requests
 import base64
 import json
 
+from utils.json import clean_ldjson
+
 
 class SmershAPI:
 
@@ -43,7 +45,10 @@ class SmershAPI:
         if response.status_code == 400:
             raise requests.HTTPError('working as designed')
 
-        return response.json()
+        try:
+            return clean_ldjson(response.json())
+        except json.JSONDecodeError:
+            return None
 
     def get(self, path, body=None):
         return self.request('GET', path, body)
