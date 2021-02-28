@@ -1,3 +1,4 @@
 rich
 dataclasses_json
 requests
+pydantic
