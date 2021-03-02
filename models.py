@@ -1,12 +1,13 @@
+import copy
 from abc import ABC
-from dataclasses import dataclass, fields
+from dataclasses import dataclass, fields, field
 from typing import List, Optional, Union, get_type_hints, get_args, get_origin
 
 from dataclasses_json import dataclass_json
 from pydantic.typing import NoneType
 from requests import HTTPError
 
-from utils.json import wrap_id_dict, convert_dict_keys_case
+from utils.json import wrap_id_dict, convert_dict_keys_case, clean_none_keys
 from utils.case import camel_case
 
 
@@ -14,26 +15,40 @@ def default_field(obj):
     return field(default_factory=lambda: copy.copy(obj))
 
 
+def has_args(field):
+    return hasattr(field, '__args__')
+
+
+def get_innermost_field(field):
+    while has_args(field):
+        field = get_args(field)[0]
+
+    return field
+
+
+def is_list(field):
+    while has_args(field):
+        field = get_args(field)[0]
+
+        if hasattr(field, '__origin__') and (get_origin(field) == list):
+            return True
+
+    return False
+
+
+def is_model(field):
+    return issubclass(get_innermost_field(field), Model)
+
+
+def is_optional(field):
+    if (get_origin(field) == Union) and has_args(field):
+        args = get_args(field)
+        return (len(args) == 2) and (args[1] is NoneType)
+
+    return False
+
+
 def lazy_model(_cls):
-
-    def has_args(field):
-        return hasattr(field, '__args__')
-
-    def get_innermost_field(field):
-        while has_args(field):
-            field = get_args(field)[0]
-
-        return field
-
-    def is_model(field):
-        return issubclass(get_innermost_field(field), Model)
-
-    def is_optional(field):
-        if (get_origin(field) == Union) and has_args(field):
-            args = get_args(field)
-            return (len(args) == 2) and (args[1] is NoneType)
-
-        return False
 
     def from_dict_lazy(cls, kvs, *, infer_missing=False):
         lazy_keys = set()
@@ -88,23 +103,19 @@ class Model(ABC):
         return results
 
     def save(self, api, new=False):
-        data = convert_dict_keys_case(self.to_dict(), camel_case)
+        data = convert_dict_keys_case(self._export(), camel_case)
 
         if new or (self.id is None):
             response = api.post(f'{Model.API_ROOT}/{self.ENDPOINT_NAME}', data)
             self.id = response['id'].split('/')[-1]
-
-            return self
         else:
-            try:
-                api.patch(f'{Model.API_ROOT}/{self.ENDPOINT_NAME}/{self.id}', data)
-                return True
-            except HTTPError:
-                return False
+            api.patch(self.iri, clean_none_keys(data))
+
+        return self
 
     def delete(self, api):
         try:
-            api.delete(f'{Model.API_ROOT}/{self.ENDPOINT_NAME}/{self.id}')
+            api.delete(self.iri)
             return True
         except HTTPError:
             return False
@@ -122,6 +133,36 @@ class Model(ABC):
             return self.id
 
         return f'{Model.API_ROOT}/{self.ENDPOINT_NAME}/{self.id}'
+
+    def _export(self):
+        data = {}
+
+        for field_name, field_type in get_type_hints(self.__class__).items():
+            field_value = getattr(self, field_name)
+
+            data[field_name] = self._export_field(field_type, field_value)
+
+        return data
+
+    def _export_field(self, field_type, field_value):
+        if is_list(field_type):
+            l = []
+            item_type = get_innermost_field(field_type)
+
+            for e in field_value:
+                l.append(self._export_field(item_type, e))
+
+            return l
+        elif is_model(field_type):
+            if issubclass(field_value.__class__, Model):
+                return field_value.iri
+            else:
+                # Here we handle the case were user has specified an ID of the model
+                # So we create an instance of this model, assign this id to it and then get the iri
+                # That's dirty but it works
+                return get_innermost_field(field_type)(id=field_value).iri
+
+        return field_value
 
 
 @lazy_model
