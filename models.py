@@ -10,6 +10,10 @@ from utils.json import wrap_id_dict, convert_dict_keys_case
 from utils.case import camel_case
 
 
+def default_field(obj):
+    return field(default_factory=lambda: copy.copy(obj))
+
+
 def lazy_model(_cls):
 
     def has_args(field):
@@ -131,16 +135,16 @@ class Mission(Model):
     start_date: Optional[str] = None
     path_to_codi: Optional[str] = None
     end_date: Optional[str] = None
-    users: Optional[List['User']] = None
-    hosts: Optional[List['Host']] = None
+    users: Optional[List['User']] = default_field([])
+    hosts: Optional[List['Host']] = default_field([])
     nmap: Optional[bool] = False
     nessus: Optional[bool] = False
     nmap_filer: Optional[bool] = False
     nessus_filer: Optional[bool] = False
     mission_type: Optional['MissionType'] = None
     credentials: Optional[str] = None
-    clients: Optional[List['Client']] = None
-    steps: Optional[List['Step']] = None
+    clients: Optional[List['Client']] = default_field([])
+    steps: Optional[List['Step']] = default_field([])
 
 
 @lazy_model
@@ -151,9 +155,9 @@ class User(Model):
     ENDPOINT_NAME = 'users'
 
     username: Optional[str] = None
-    roles: Optional[List[str]] = None
+    roles: Optional[List[str]] = default_field([])
     enabled: Optional[bool] = False
-    missions: Optional[List['Mission']] = None
+    missions: Optional[List['Mission']] = default_field([])
     password: Optional[str] = None
 
 
@@ -169,7 +173,7 @@ class Client(Model):
     first_name: Optional[str] = None
     last_name: Optional[str] = None
     mail: Optional[str] = None
-    missions: Optional[List['Mission']] = None
+    missions: Optional[List['Mission']] = default_field([])
 
 
 @lazy_model
@@ -195,9 +199,9 @@ class Host(Model):
     name: Optional[str] = None
     checked: Optional[bool] = False
     technology: Optional[str] = None
-    host_vulns: Optional[List['HostVuln']] = None
+    host_vulns: Optional[List['HostVuln']] = default_field([])
     mission: Optional['Mission'] = None
-    nmaps: Optional[List['Nmap']] = None
+    nmaps: Optional[List['Nmap']] = default_field([])
 
 
 @lazy_model
@@ -208,7 +212,7 @@ class Impact(Model):
     ENDPOINT_NAME = 'impacts'
 
     name: Optional[str] = None
-    vulns: Optional[List['Vuln']] = None
+    vulns: Optional[List['Vuln']] = default_field([])
 
 
 @lazy_model
@@ -231,7 +235,7 @@ class Nmap(Model):
     date: Optional[str] = None
     status: Optional[bool] = False
     port: Optional[str] = None
-    host: Optional[List['Host']] = None
+    host: Optional[List['Host']] = default_field([])
 
 
 @lazy_model
@@ -277,7 +281,7 @@ class VulnType(Model):
     ENDPOINT_NAME = 'vuln_types'
 
     name: Optional[str] = None
-    vulns: Optional[List['Vuln']] = None
+    vulns: Optional[List['Vuln']] = default_field([])
 
 
 @lazy_model
@@ -292,4 +296,4 @@ class Vuln(Model):
     remediation: Optional[str] = None
     vuln_type: Optional['VulnType'] = None
     impact: Optional['Impact'] = None
-    host_vulns: Optional[List['HostVuln']] = None
+    host_vulns: Optional[List['HostVuln']] = default_field([])
