@@ -2,20 +2,18 @@ import argparse
 import sys
 
 import requests
+from cmd2 import Cmd, Cmd2ArgumentParser, with_argparser, with_argument_list
+from rich import box
 from rich.console import Console
-from rich.layout import Layout
-from rich.pretty import Pretty
-from rich.table import Table
 from rich.panel import Panel
-from rich import box, pretty
+from rich.table import Table
 from rich.text import Text
-from cmd2 import Cmd, Cmd2ArgumentParser, with_argparser
 
 from api import SmershAPI
-from models import User, Mission, Host, Client, Vuln, Impact, MissionType, PositivePoint, NegativePoint
-
+from models import User, Mission, Client, Vuln, PositivePoint, NegativePoint, Model
 
 TABLE_BOX_TYPE = box.ROUNDED
+COMMAND_PROMPT = '\x1b[1;31mSMERSH {}>>\x1b[0m '
 
 
 def has_ipython():
@@ -31,7 +29,9 @@ def get_show_parser():
 
     parser.add_argument(
         'model',
+        nargs='?',
         choices=['mission', 'user', 'client', 'vuln', 'positive_point', 'negative_point'],
+        default=None,
         help='The object type to query information about.'
     )
 
@@ -53,6 +53,116 @@ def get_show_parser():
     return parser
 
 
+def get_use_parser():
+    parser = Cmd2ArgumentParser()
+
+    parser.add_argument(
+        'model',
+        choices=['mission', 'user', 'client', 'vuln', 'positive_point', 'negative_point'],
+        help='The object type to query information about.'
+    )
+
+    parser.add_argument(
+        'id',
+        nargs='?',
+        type=int,
+        default=None,
+        help=''
+    )
+
+    return parser
+
+
+def get_assign_parser(model):
+    def object_id_checker(o):
+        i = int(o)
+
+        if i < 0:
+            raise argparse.ArgumentTypeError('The object ID must be positive')
+
+        return o
+
+    def bool_checker(v):
+        if isinstance(v, bool):
+            return v
+        if v.lower() in ('yes', 'true', 't', 'y', '1'):
+            return True
+        elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+            return False
+        else:
+            raise argparse.ArgumentTypeError('Boolean value expected.')
+
+    def add_str_subparser(_subparsers, field_name):
+        str_subparser = _subparsers.add_parser(field_name)
+        str_subparser.add_argument('value', type=str)
+
+    def add_list_subparser(_subparsers, field_name, item_type=None, choices=None):
+        assert(not ((item_type is None) and (choices is None)))
+
+        list_subparser = _subparsers.add_parser(field_name)
+        list_subparser.add_argument('action', choices=['add', 'remove'])
+
+        if choices is None:
+            list_subparser.add_argument('value', nargs='+', type=item_type)
+        else:
+            list_subparser.add_argument('value', nargs='+', choices=choices)
+
+    def add_bool_subparser(_subparsers, field_name):
+        bool_subparser = _subparsers.add_parser(field_name)
+        bool_subparser.add_argument('value', type=bool_checker)
+
+    def add_object_subparser(_subparsers, field_name):
+        object_subparser = _subparsers.add_parser(field_name)
+        object_subparser.add_argument('value', type=object_id_checker)
+
+    parser = Cmd2ArgumentParser()
+    subparsers = parser.add_subparsers(dest='field')
+
+    if isinstance(model, Mission):
+        add_str_subparser(subparsers, 'name')
+        add_str_subparser(subparsers, 'start_date')  # TODO: Add a date subparser
+        add_str_subparser(subparsers, 'path_to_codi')
+        add_str_subparser(subparsers, 'end_date')  # TODO: Add a date subparser
+        add_list_subparser(subparsers, 'users', item_type=object_id_checker)
+        add_bool_subparser(subparsers, 'nmap')
+        add_bool_subparser(subparsers, 'nessus')
+        add_bool_subparser(subparsers, 'nmap_filer')
+        add_bool_subparser(subparsers, 'nessus_filer')
+        add_object_subparser(subparsers, 'mission_type')
+        add_str_subparser(subparsers, 'credentials')
+        add_list_subparser(subparsers, 'clients', item_type=object_id_checker)
+        add_list_subparser(subparsers, 'steps', item_type=object_id_checker)
+
+    elif isinstance(model, User):
+        add_str_subparser(subparsers, 'username')
+        add_str_subparser(subparsers, 'password')
+        add_list_subparser(subparsers, 'roles', choices=['ROLE_USER', 'ROLE_ADMIN'])
+        add_bool_subparser(subparsers, 'enabled')
+        add_list_subparser(subparsers, 'missions', item_type=object_id_checker)
+
+    elif isinstance(model, Client):
+        add_str_subparser(subparsers, 'name')
+        add_str_subparser(subparsers, 'phone')
+        add_str_subparser(subparsers, 'first_name')
+        add_str_subparser(subparsers, 'last_name')
+        add_str_subparser(subparsers, 'mail')
+        add_list_subparser(subparsers, 'missions', item_type=object_id_checker)
+
+    elif isinstance(model, Vuln):
+        add_str_subparser(subparsers, 'name')
+        add_str_subparser(subparsers, 'description')
+        add_str_subparser(subparsers, 'remediation')
+        add_object_subparser(subparsers, 'vuln_type')
+        add_object_subparser(subparsers, 'impact')
+        add_list_subparser(subparsers, 'host_vulns', item_type=object_id_checker)
+
+    elif isinstance(model, PositivePoint) or isinstance(model, NegativePoint):
+        add_str_subparser(subparsers, 'name')
+        add_str_subparser(subparsers, 'description')
+
+    return parser
+
+
 class App(Cmd):
 
     def __init__(self, api):
@@ -61,21 +171,36 @@ class App(Cmd):
             allow_cli_args=False)
 
         self.api = api
-        self.user = User.get(api, api.authenticated_user_id)
 
-        self.prompt = '\x1b[1;31mSMERSH >>\x1b[0m '
         self.continuation_prompt = '\x1b[1;31m>>\x1b[0m '
         self.self_in_py = True
+        self.context = None
+
+        self.update_prompt()
 
     @with_argparser(get_show_parser())
     def do_show(self, namespace):
         """Print information about one or more object"""
 
+        if namespace.model is None:
+            if self.context is None:
+                console.print('[red]There is no context')
+            else:
+                if namespace.raw:
+                    console.print(self.context)
+                else:
+                    model_name = self.context.__class__.__name__.lower()
+                    print_function = self.get_print_function_from_model_name(model_name)
+
+                    print_function([self.context])
+
+            return
+
         model = self.get_model_from_name(namespace.model)
         ids = namespace.ids
 
         if namespace.raw:
-            print_function = self.print_object
+            print_function = console.print
         else:
             print_function = self.get_print_function_from_model_name(namespace.model)
 
@@ -98,15 +223,111 @@ class App(Cmd):
             else:
                 console.print('Your request returned no object :(')
 
+    @with_argparser(get_use_parser())
+    def do_use(self, namespace):
+        model = self.get_model_from_name(namespace.model)
+        id = namespace.id
+
+        if id is None:
+            self.context = model(id=None)
+        else:
+            try:
+                self.context = model.get(self.api, id)
+            except requests.exceptions.HTTPError as e:
+                if e.response.status_code == 404:
+                    console.print(f'[yellow]Unable to find an object with id: {id}')
+                else:
+                    console.print(f'[red]An HTTP error occurred: {e}')
+
+        self.update_prompt()
+
+    @with_argument_list
+    def do_assign(self, args):
+        if self.context is None:
+            console.print('[red]You must enter into a context before setting a field')
+            return
+
+        try:
+            args = get_assign_parser(self.context).parse_known_args(args)[0]
+
+            if 'action' in args:
+                l = getattr(self.context, args.field)
+
+                if args.action == 'add':
+                    for e in args.value:
+                        if e in l:
+                            console.print(f'[yellow]The item "{e}" was already added into the field named "{args.field}"')
+                        else:
+                            l.append(e)
+                else:
+                    for e in l:
+                        _id = e
+
+                        if issubclass(e.__class__, Model):
+                            _id = e.id
+
+                        if _id in args.value:
+                            l.remove(e)
+
+                setattr(self.context, args.field, l)
+            else:
+                setattr(self.context, args.field, args.value)
+        except SystemExit:
+            # Just ignore the SystemExit exception. The error message is printed by argparse
+            pass
+
+    def do_exit(self, _):
+        if self.context is None:
+            console.print('[red]You have no context to exit')
+        else:
+            self.context = None
+            self.update_prompt()
+
+    def do_save(self, _):
+        if self.context is None:
+            console.print('[red]You need to be in a context to save something')
+        else:
+            try:
+                self.context = self.context.save(self.api)
+                self.update_prompt()
+
+                console.print('[green]The object was saved successfully')
+
+            except requests.exceptions.HTTPError as e:
+                console.print(f'[red]Unable to save the object. {e}')
+
+    def do_delete(self, _):
+        if self.context is None:
+            console.print('[red]You must be in a context to delete something')
+        elif self.context.id is None:
+            console.print('[red]You can\'t delete a NEW object')
+        else:
+            if self.context.delete(self.api):
+                console.print('[green]The object was deleted successfully')
+
+                self.context = None
+                self.update_prompt()
+            else:
+                console.print('[red]An error occurred. Unable to delete the object')
+
+    def update_prompt(self):
+        if self.context is None:
+            self.prompt = COMMAND_PROMPT.format('')
+        else:
+            model_name = self.context.__class__.__name__
+            id = '\x1b[1;39mNEW\x1b[0m' if (self.context.id is None) else self.context.id
+
+            self.prompt = COMMAND_PROMPT.format(f'-\x1b[0m {model_name}[{id}]\x1b[1;31m ')
+
     def get_model_from_name(self, model_name):
         return {
             'mission': Mission,
             'user': User,
             'client': Client,
             'vuln': Vuln,
-            'positive_point': PositivePoint,
-            'negative_point': NegativePoint
-        }[model_name]
+            'positivepoint': PositivePoint,
+            'negativepoint': NegativePoint
+        }[model_name.replace('_', '')]
 
     def get_print_function_from_model_name(self, model_name):
         return {
@@ -114,16 +335,9 @@ class App(Cmd):
             'user': self.print_users_table,
             'client': self.print_clients_table,
             'vuln': self.print_vulns_table,
-            'positive_point': self.print_points_table,
-            'negative_point': self.print_points_table
-        }[model_name]
-
-    @staticmethod
-    def print_object(object):
-        if type(object) == list:
-            console.print([e.to_dict() for e in object])
-        else:
-            console.print(object.to_dict())
+            'positivepoint': self.print_points_table,
+            'negativepoint': self.print_points_table
+        }[model_name.replace('_', '')]
 
     @staticmethod
     def print_missions_table(missions):
