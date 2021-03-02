@@ -194,7 +194,7 @@ class HostVuln(Model):
 @dataclass
 class Host(Model):
 
-    ENDPOINT_NAME = 'host'
+    ENDPOINT_NAME = 'hosts'
 
     name: Optional[str] = None
     checked: Optional[bool] = False
