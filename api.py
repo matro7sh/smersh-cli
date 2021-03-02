@@ -43,7 +43,7 @@ class SmershAPI:
             raise requests.HTTPError('Resource not found', response=response)
 
         if response.status_code == 400:
-            raise requests.HTTPError('working as designed')
+            raise requests.HTTPError('Error 400: {}'.format(response.json()['hydra:description']))
 
         if response.status_code >= 500:
             raise requests.HTTPError('Well, I guess the server died ¯\\_(ツ)_/¯', response=response)
