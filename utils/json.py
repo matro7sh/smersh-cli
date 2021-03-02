@@ -74,3 +74,13 @@ def wrap_id_dict(data, keys):
         wrapped[k] = wrap_id(v) if k in keys else v
 
     return wrapped
+
+
+def clean_none_keys(data):
+    cleaned = {}
+
+    for k, v in data.items():
+        if v is not None:
+            cleaned[k] = v
+
+    return cleaned
