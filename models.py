@@ -1,7 +1,7 @@
 import copy
 from abc import ABC
 from dataclasses import dataclass, fields, field
-from typing import List, Optional, Union, get_type_hints, get_args, get_origin
+from typing import List, Optional, Union, get_type_hints
 
 from dataclasses_json import dataclass_json
 from pydantic.typing import NoneType
@@ -9,6 +9,19 @@ from requests import HTTPError
 
 from utils.json import wrap_id_dict, convert_dict_keys_case, clean_none_keys
 from utils.case import camel_case
+
+
+# HACK: This is a ugly fix for old Python versions
+import sys
+
+if sys.version_info < (3, 8):
+    def get_args(field):
+        return field.__args__
+
+    def get_origin(field):
+        return field.__origin__
+else:
+    from typing import get_args, get_origin
 
 
 def default_field(obj):
