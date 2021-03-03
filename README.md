@@ -1,6 +1,6 @@
 # How to install
 
->requirement : python 3.8
+>requirement : python >= 3.5
 
 
 `pip3 install -r requirements.txt`
