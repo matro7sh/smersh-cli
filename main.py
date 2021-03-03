@@ -340,6 +340,17 @@ class App(Cmd):
         }[model_name.replace('_', '')]
 
     @staticmethod
+    def get_printable_user_role(user_role):
+        return {
+            'ROLE_USER': 'User',
+            'ROLE_ADMIN': 'Administrator'
+        }[user_role]
+
+    @staticmethod
+    def get_printable_flag(flag, yes_text='Yes', no_text='No'):
+        return f'[green]{yes_text}' if flag else f'[red]{no_text}'
+
+    @staticmethod
     def print_missions_table(missions):
         table = Table(box=TABLE_BOX_TYPE)
 
@@ -347,9 +358,14 @@ class App(Cmd):
         table.add_column('Name', justify='center', style='magenta')
         table.add_column('Start date', justify='center', style='green')
         table.add_column('End date', justify='center', style='red')
+        table.add_column('Nmap', justify='center')
+        table.add_column('Nessus', justify='center')
 
         for mission in missions:
-            table.add_row(mission.id, mission.name, mission.start_date, mission.end_date)
+            nmap = App.get_printable_flag(mission.nmap, 'Done', 'To do')
+            nessus = App.get_printable_flag(mission.nessus, 'Done', 'To do')
+
+            table.add_row(mission.id, mission.name, mission.start_date, mission.end_date, nmap, nessus)
 
         console.print(table)
 
@@ -360,17 +376,19 @@ class App(Cmd):
         table.add_column('ID', justify='center')
         table.add_column('Name', justify='center')
         table.add_column('Enabled', justify='center')
+        table.add_column('Roles', justify='center')
         table.add_column('Assigned missions', justify='center')
 
         for user in users:
             enabled = '[green]Yes' if user.enabled else '[red]No'
+            roles = ', '.join([App.get_printable_user_role(role) for role in user.roles])
 
             if len(user.missions) == 0:
                 missions = 'None'
             else:
                 missions = ', '.join([mission.id for mission in user.missions])
 
-            table.add_row(user.id, user.username, enabled, missions)
+            table.add_row(user.id, user.username, enabled, roles, missions)
 
         console.print(table)
 
