@@ -11,7 +11,7 @@
 
 # Smersh interactive shell
 
-![Exemple](img/exemple.png)
+![Exemple](img/example.png)
 
 ## Commands
 
