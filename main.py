@@ -67,7 +67,7 @@ def get_use_parser():
         nargs='?',
         type=int,
         default=None,
-        help=''
+        help='An optional identifier. If omitted, the command will assume you want to create a new object.'
     )
 
     return parser
@@ -180,7 +180,13 @@ class App(Cmd):
 
     @with_argparser(get_show_parser())
     def do_show(self, namespace):
-        """Print information about one or more object"""
+        """
+        Print information about one or more object. This command can display the information either in a table or in
+        raw.
+
+        If you have a context selected, calling this command without argument will show information about the object
+        designated by the current context.
+        """
 
         if namespace.model is None:
             if self.context is None:
@@ -225,6 +231,12 @@ class App(Cmd):
 
     @with_argparser(get_use_parser())
     def do_use(self, namespace):
+        """
+        Change the current context.
+
+        Warning: every unsaved change will be lost.
+        """
+
         model = self.get_model_from_name(namespace.model)
         id = namespace.id
 
@@ -243,6 +255,32 @@ class App(Cmd):
 
     @with_argument_list
     def do_assign(self, args):
+        """
+        Assign a value to a field. The previous value is erased by the next one.
+
+        A field can have one of the following type:
+            * string
+            * boolean
+            * object reference
+            * a list of one of the types above
+
+        An object reference must be designated by its identifier (handled internally as a string).
+
+        The syntax for the three atomic types (string, boolean and object reference) is the following:
+
+        ```
+        assign <field name> <value>.
+        ```
+
+        For the list type the syntax is the following:
+
+        ```
+        assign <field name> <add / remove> <space separated list of values>.
+        ```
+
+        This command will raise an error if you have no context selected.
+        """
+
         if self.context is None:
             console.print('[red]You must enter into a context before setting a field')
             return
@@ -277,6 +315,12 @@ class App(Cmd):
             pass
 
     def do_exit(self, _):
+        """
+        Exit the current context. This command will raise an error if you have no context selected.
+
+        Warning: every unsaved change will be lost.
+        """
+
         if self.context is None:
             console.print('[red]You have no context to exit')
         else:
@@ -284,6 +328,14 @@ class App(Cmd):
             self.update_prompt()
 
     def do_save(self, _):
+        """
+        Save the object designated by the current context. The object will be either updated or created depending of its
+        identifier (`id` field). If the identifier is None, the object is considered new and will be created. Otherwise,
+        the object will be updated.
+
+        This command will raise an error if you have no context selected.
+        """
+
         if self.context is None:
             console.print('[red]You need to be in a context to save something')
         else:
@@ -297,6 +349,11 @@ class App(Cmd):
                 console.print(f'[red]Unable to save the object. {e}')
 
     def do_delete(self, _):
+        """
+        Delete the object designated by the current context. This command will raise an error if you have no context
+        selected or if you try to delete a new object (object identifier is None).
+        """
+
         if self.context is None:
             console.print('[red]You must be in a context to delete something')
         elif self.context.id is None:
