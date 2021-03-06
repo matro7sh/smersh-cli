@@ -49,7 +49,7 @@ This project includes a Dockerfile that you can build with the following command
 
 ```bash
 cd <project folder>
-docker build .
+docker image build -t smershcli:v1.0 .
 ```
 
 Once the image is built, you can simply run smersh-cli with the following command:
