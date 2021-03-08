@@ -5,7 +5,9 @@ name: Upload Python package to PyPI
 
 on:
   release:
-    types: [created]
+    types:
+      - created
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -13,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.5', '3.6', '3.7', '3.8', 3.9]
+        python-version: ['3.5', '3.6', '3.7', '3.8', '3.9']
 
     steps:
     - uses: actions/checkout@v2
