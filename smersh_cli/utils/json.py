@@ -1,4 +1,4 @@
-from utils.case import snake_case
+from .case import snake_case
 
 
 def extract_id_from_url(url):

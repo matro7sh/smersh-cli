@@ -7,8 +7,8 @@ from dataclasses_json import dataclass_json
 from pydantic.typing import NoneType
 from requests import HTTPError
 
-from utils.json import wrap_id_dict, convert_dict_keys_case, clean_none_keys
-from utils.case import camel_case
+from .utils.json import wrap_id_dict, convert_dict_keys_case, clean_none_keys
+from .utils.case import camel_case
 
 
 # HACK: This is a ugly fix for old Python versions

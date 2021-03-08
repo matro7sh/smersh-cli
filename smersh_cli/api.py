@@ -2,7 +2,7 @@ import requests
 import base64
 import json
 
-from utils.json import clean_ldjson
+from .utils.json import clean_ldjson
 
 
 class SmershAPI:

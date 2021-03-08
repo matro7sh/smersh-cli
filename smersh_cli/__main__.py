@@ -9,8 +9,8 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 
-from api import SmershAPI
-from models import User, Mission, Client, Vuln, PositivePoint, NegativePoint, Model
+from .api import SmershAPI
+from .models import User, Mission, Client, Vuln, PositivePoint, NegativePoint, Model
 
 TABLE_BOX_TYPE = box.ROUNDED
 COMMAND_PROMPT = '\x1b[1;31mSMERSH {}>>\x1b[0m '
@@ -172,6 +172,7 @@ class App(Cmd):
 
         self.api = api
 
+        self.console = Console()
         self.continuation_prompt = '\x1b[1;31m>>\x1b[0m '
         self.self_in_py = True
         self.context = None
@@ -190,10 +191,10 @@ class App(Cmd):
 
         if namespace.model is None:
             if self.context is None:
-                console.print('[red]There is no context')
+                self.console.print('[red]There is no context')
             else:
                 if namespace.raw:
-                    console.print(self.context)
+                    self.console.print(self.context)
                 else:
                     model_name = self.context.__class__.__name__.lower()
                     print_function = self.get_print_function_from_model_name(model_name)
@@ -206,7 +207,7 @@ class App(Cmd):
         ids = namespace.ids
 
         if namespace.raw:
-            print_function = console.print
+            print_function = self.console.print
         else:
             print_function = self.get_print_function_from_model_name(namespace.model)
 
@@ -220,14 +221,14 @@ class App(Cmd):
                     objects.append(model.get(self.api, id))
                 except requests.exceptions.HTTPError as e:
                     if e.response.status_code == 404:
-                        console.print(f'[yellow]Unable to find an object with id: {id}')
+                        self.console.print(f'[yellow]Unable to find an object with id: {id}')
                     else:
-                        console.print(f'[red]An HTTP error occurred: {e}')
+                        self.console.print(f'[red]An HTTP error occurred: {e}')
 
             if len(objects) > 0:
                 print_function(objects)
             else:
-                console.print('Your request returned no object :(')
+                self.console.print('Your request returned no object :(')
 
     @with_argparser(get_use_parser())
     def do_use(self, namespace):
@@ -247,9 +248,9 @@ class App(Cmd):
                 self.context = model.get(self.api, id)
             except requests.exceptions.HTTPError as e:
                 if e.response.status_code == 404:
-                    console.print(f'[yellow]Unable to find an object with id: {id}')
+                    self.console.print(f'[yellow]Unable to find an object with id: {id}')
                 else:
-                    console.print(f'[red]An HTTP error occurred: {e}')
+                    self.console.print(f'[red]An HTTP error occurred: {e}')
 
         self.update_prompt()
 
@@ -282,7 +283,7 @@ class App(Cmd):
         """
 
         if self.context is None:
-            console.print('[red]You must enter into a context before setting a field')
+            self.console.print('[red]You must enter into a context before setting a field')
             return
 
         try:
@@ -294,7 +295,8 @@ class App(Cmd):
                 if args.action == 'add':
                     for e in args.value:
                         if e in l:
-                            console.print(f'[yellow]The item "{e}" was already added into the field named "{args.field}"')
+                            self.console.print(f'[yellow]The item "{e}" was already added into the field named '
+                                               f'"{args.field}"')
                         else:
                             l.append(e)
                 else:
@@ -322,7 +324,7 @@ class App(Cmd):
         """
 
         if self.context is None:
-            console.print('[red]You have no context to exit')
+            self.console.print('[red]You have no context to exit')
         else:
             self.context = None
             self.update_prompt()
@@ -337,16 +339,16 @@ class App(Cmd):
         """
 
         if self.context is None:
-            console.print('[red]You need to be in a context to save something')
+            self.console.print('[red]You need to be in a context to save something')
         else:
             try:
                 self.context = self.context.save(self.api)
                 self.update_prompt()
 
-                console.print('[green]The object was saved successfully')
+                self.console.print('[green]The object was saved successfully')
 
             except requests.exceptions.HTTPError as e:
-                console.print(f'[red]Unable to save the object. {e}')
+                self.console.print(f'[red]Unable to save the object. {e}')
 
     def do_delete(self, _):
         """
@@ -355,17 +357,17 @@ class App(Cmd):
         """
 
         if self.context is None:
-            console.print('[red]You must be in a context to delete something')
+            self.console.print('[red]You must be in a context to delete something')
         elif self.context.id is None:
-            console.print('[red]You can\'t delete a NEW object')
+            self.console.print('[red]You can\'t delete a NEW object')
         else:
             if self.context.delete(self.api):
-                console.print('[green]The object was deleted successfully')
+                self.console.print('[green]The object was deleted successfully')
 
                 self.context = None
                 self.update_prompt()
             else:
-                console.print('[red]An error occurred. Unable to delete the object')
+                self.console.print('[red]An error occurred. Unable to delete the object')
 
     def update_prompt(self):
         if self.context is None:
@@ -407,8 +409,7 @@ class App(Cmd):
     def get_printable_flag(flag, yes_text='Yes', no_text='No'):
         return f'[green]{yes_text}' if flag else f'[red]{no_text}'
 
-    @staticmethod
-    def print_missions_table(missions):
+    def print_missions_table(self, missions):
         table = Table(box=TABLE_BOX_TYPE)
 
         table.add_column('ID', justify='center', style='cyan')
@@ -424,10 +425,9 @@ class App(Cmd):
 
             table.add_row(mission.id, mission.name, mission.start_date, mission.end_date, nmap, nessus)
 
-        console.print(table)
+        self.console.print(table)
 
-    @staticmethod
-    def print_users_table(users):
+    def print_users_table(self, users):
         table = Table(box=TABLE_BOX_TYPE)
 
         table.add_column('ID', justify='center')
@@ -447,10 +447,9 @@ class App(Cmd):
 
             table.add_row(user.id, user.username, enabled, roles, missions)
 
-        console.print(table)
+        self.console.print(table)
 
-    @staticmethod
-    def print_clients_table(clients):
+    def print_clients_table(self, clients):
         table = Table(box=TABLE_BOX_TYPE)
 
         table.add_column('ID', justify='center')
@@ -464,10 +463,9 @@ class App(Cmd):
 
             table.add_row(client.id, client.name, contact_name, client.phone, client.mail)
 
-        console.print(table)
+        self.console.print(table)
 
-    @staticmethod
-    def print_vulns_table(vulns):
+    def print_vulns_table(self, vulns):
         table = Table(box=TABLE_BOX_TYPE, show_lines=True)
 
         table.add_column('ID', justify='center')
@@ -478,10 +476,9 @@ class App(Cmd):
         for vuln in vulns:
             table.add_row(vuln.id, vuln.name, vuln.description, vuln.remediation)
 
-        console.print(table)
+        self.console.print(table)
 
-    @staticmethod
-    def print_points_table(points):
+    def print_points_table(self, points):
         table = Table(box=TABLE_BOX_TYPE, show_lines=True)
 
         table.add_column('ID', justify='center')
@@ -491,7 +488,7 @@ class App(Cmd):
         for point in points:
             table.add_row(point.id, point.name, point.description)
 
-        console.print(table)
+        self.console.print(table)
 
 
 def parse_args():
@@ -502,17 +499,17 @@ def parse_args():
     return parser.parse_args()
 
 
-def print_hello():
+def print_hello(console):
     # TODO: Replace this by a beautiful ASCII art picture ?
     console.print(Panel(Text('Welcome to the SMERSH Python client', justify='center')))
 
 
-if __name__ == '__main__':
+def main():
     args = parse_args()
     console = Console()
     api = SmershAPI(args.url)
 
-    print_hello()
+    print_hello(console)
 
     try:
         while not api.authenticated:
@@ -536,3 +533,7 @@ if __name__ == '__main__':
 
     app = App(api)
     sys.exit(app.cmdloop())
+
+
+if __name__ == '__main__':
+    main()
