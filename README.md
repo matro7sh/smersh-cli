@@ -45,17 +45,25 @@ be lost).
 
 ## Via Docker
 
-This project includes a Dockerfile that you can build with the following command:
+This project includes a Dockerfile that you can build using the following command:
 
 ```bash
 cd <project folder>
 docker image build -t smershcli:v1.0 .
 ```
 
-Once the image is built, you can simply run smersh-cli with the following command:
+Once the image is built, you can simply run smersh-cli using the following command:
 
 ```bash
 docker run -it <container id> <smersh api url>
+```
+
+## Via Pip
+
+You can also install the latest release directly from PyPI using the following command:
+
+```bash
+pip install smersh_cli
 ```
 
 ## Manually
@@ -65,17 +73,21 @@ for more information). However, we recommend Python 3.8 to avoid using a hack to
 If you have an older Python version, you will need to upgrade as we won't support any version below 3.5.
 
 smersh-cli also depends on the following libraries:
-    * rich
-    * cmd2
-    * requests
-    * dataclasses_json
-    * pydantic
 
-If you have `pip` installed you can use the following command to install all dependencies at once :
+* rich
+* cmd2
+* requests
+* dataclasses_json
+* pydantic
+* importlib_metadata
+
+If you have `setuptools` installed you can use the following command to install all dependencies and the package at once:
 
 ```bash
-pip install -r requirements.txt
+python setup.py install
 ```
+
+You can then use smersh-cli simply by using the command `smersh-cli`.
 
 # License
 
