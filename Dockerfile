@@ -2,9 +2,10 @@ FROM debian:latest
 
 RUN apt-get update
 RUN apt-get -y full-upgrade
-RUN apt-get install -y python3 python3-pip
+RUN apt-get install -y git python3 python3-pip
 
 COPY . /smersh-cli
-RUN pip3 install -r /smersh-cli/requirements.txt
+WORKDIR /smersh-cli
+RUN python3 setup.py install
 
-ENTRYPOINT ["python3", "/smersh-cli/main.py"]
+ENTRYPOINT ["smersh-cli"]
