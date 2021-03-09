@@ -7,6 +7,7 @@ from dataclasses_json import dataclass_json
 from pydantic.typing import NoneType
 from requests import HTTPError
 
+from .api import APIRoles
 from .utils.json import wrap_id_dict, convert_dict_keys_case, clean_none_keys
 from .utils.case import camel_case
 
@@ -213,6 +214,16 @@ class User(Model):
     enabled: Optional[bool] = False
     missions: Optional[List['Mission']] = default_field([])
     password: Optional[str] = None
+
+
+    @property
+    def roles_flags(self):
+        flags = 0
+
+        for role in self.roles:
+            flags |= APIRoles[role]
+
+        return flags
 
 
 @lazy_model
