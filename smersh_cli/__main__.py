@@ -5,12 +5,14 @@ import requests
 from cmd2 import Cmd, Cmd2ArgumentParser, with_argparser, with_argument_list
 from rich import box
 from rich.console import Console
+from rich.layout import Layout
 from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 
-from .api import SmershAPI
+from .api import SmershAPI, APIRoles
 from .models import User, Mission, Client, Vuln, PositivePoint, NegativePoint, Model
+
 
 TABLE_BOX_TYPE = box.ROUNDED
 COMMAND_PROMPT = '\x1b[1;31mSMERSH {}>>\x1b[0m '
@@ -92,6 +94,12 @@ def get_assign_parser(model):
         else:
             raise argparse.ArgumentTypeError('Boolean value expected.')
 
+    def role_checker(s):
+        if hasattr(APIRoles, s):
+            return APIRoles[s].name
+
+        raise argparse.ArgumentTypeError(f'Invalid role name: {s}')
+
     def add_str_subparser(_subparsers, field_name):
         str_subparser = _subparsers.add_parser(field_name)
         str_subparser.add_argument('value', type=str)
@@ -136,7 +144,7 @@ def get_assign_parser(model):
     elif isinstance(model, User):
         add_str_subparser(subparsers, 'username')
         add_str_subparser(subparsers, 'password')
-        add_list_subparser(subparsers, 'roles', choices=['ROLE_USER', 'ROLE_ADMIN'])
+        add_list_subparser(subparsers, 'roles', item_type=role_checker)
         add_bool_subparser(subparsers, 'enabled')
         add_list_subparser(subparsers, 'missions', item_type=object_id_checker)
 
@@ -399,13 +407,6 @@ class App(Cmd):
         }[model_name.replace('_', '')]
 
     @staticmethod
-    def get_printable_user_role(user_role):
-        return {
-            'ROLE_USER': 'User',
-            'ROLE_ADMIN': 'Administrator'
-        }[user_role]
-
-    @staticmethod
     def get_printable_flag(flag, yes_text='Yes', no_text='No'):
         return f'[green]{yes_text}' if flag else f'[red]{no_text}'
 
@@ -427,8 +428,53 @@ class App(Cmd):
 
         self.console.print(table)
 
-    def print_users_table(self, users):
+    def get_roles_layout(self, roles):
+        layout = Table.grid()
         table = Table(box=TABLE_BOX_TYPE)
+        roles_groups = {
+            'Client': APIRoles.ROLE_CLIENT_GET_LIST,
+            'Host': APIRoles.ROLE_HOST_GET_LIST,
+            'HostVuln': APIRoles.ROLE_HOST_VULN_GET_LIST,
+            'Impact': APIRoles.ROLE_IMPACT_GET_LIST,
+            'Mission': APIRoles.ROLE_MISSION_GET_LIST,
+            'MissionType': APIRoles.ROLE_MISSION_TYPE_GET_LIST,
+            'NegativePoint': APIRoles.ROLE_NEGATIVE_POINT_GET_LIST,
+            'PositivePoint': APIRoles.ROLE_POSITIVE_POINT_GET_LIST,
+            'Step': APIRoles.ROLE_STEP_GET_LIST,
+            'User': APIRoles.ROLE_USER_GET_LIST,
+            'Vuln': APIRoles.ROLE_VULN_GET_LIST,
+            'VulnType': APIRoles.ROLE_VULN_TYPE_GET_LIST
+        }
+
+        table.add_column('Model name')
+        table.add_column('List', justify='center')
+        table.add_column('Create', justify='center')
+        table.add_column('Read', justify='center')
+        table.add_column('Update (full)', justify='center')
+        table.add_column('Update (partial)', justify='center')
+        table.add_column('Delete', justify='center')
+
+        for model_name, offset in roles_groups.items():
+            row = [model_name]
+
+            for i in range(6):
+                if roles & (offset << i):
+                    row.append('[green]:heavy_check_mark:')
+                else:
+                    row.append('')
+
+            table.add_row(*row)
+
+        can_upload_host = self.get_printable_flag(roles & APIRoles.ROLE_HOST_UPLOAD)
+
+        layout.add_column()
+        layout.add_row(table)
+        layout.add_row(f'Can upload host: {can_upload_host}')
+
+        return layout
+
+    def print_users_table(self, users):
+        table = Table(box=TABLE_BOX_TYPE, show_lines=True)
 
         table.add_column('ID', justify='center')
         table.add_column('Name', justify='center')
@@ -438,14 +484,14 @@ class App(Cmd):
 
         for user in users:
             enabled = '[green]Yes' if user.enabled else '[red]No'
-            roles = ', '.join([App.get_printable_user_role(role) for role in user.roles])
+            roles_layout = self.get_roles_layout(user.roles_flags)
 
             if len(user.missions) == 0:
                 missions = 'None'
             else:
                 missions = ', '.join([mission.id for mission in user.missions])
 
-            table.add_row(user.id, user.username, enabled, roles, missions)
+            table.add_row(user.id, user.username, enabled, roles_layout, missions)
 
         self.console.print(table)
 
