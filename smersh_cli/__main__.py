@@ -498,6 +498,10 @@ class App(Cmd):
         clients_node = layout.add(':bust_in_silhouette: [blue]Clients[/blue]', guide_style='blue')
 
         for client in mission.clients:
+            if isinstance(client, str):
+                clients_node.add(f'[bold]#{client}[/bold] (save to update)')
+                continue
+
             client_node = clients_node.add(f'[bold]{client.first_name} {client.last_name}[/bold] ({client.name})',
                                            guide_style='white')
 
@@ -507,11 +511,19 @@ class App(Cmd):
         pentesters_node = layout.add(':robot: [red]Pentesters[/red]', guide_style='red')
 
         for pentester in mission.users:
+            if isinstance(pentester, str):
+                pentesters_node.add(f'#{pentester} (save to update)')
+                continue
+
             pentesters_node.add(pentester.username)
 
         hosts_node = layout.add(':desktop_computer: Scope')
 
         for host in mission.hosts:
+            if isinstance(host, str):
+                host_node.add(f'#{host} (save to update)')
+                continue
+
             host_node = hosts_node.add(('[green]:heavy_check_mark: ' if host.checked else '[yellow]:hourglass_not_done:') +
                                        f' #{host.id} - {host.name}')
 
@@ -524,6 +536,10 @@ class App(Cmd):
         steps_node = layout.add(':spiral_notepad: [magenta]Activity', guide_style='magenta')
 
         for step in mission.steps:
+            if isinstance(step, str):
+                steps_node.add(f'#{step} (save to update)')
+                continue
+
             _, delta = date.format_delta(datetime.now(timezone.utc), date.date_from_iso(step.created_at))
 
             steps_node.add(f'[bold]{delta} ago[/bold] - #{step.id} - {step.description}')
