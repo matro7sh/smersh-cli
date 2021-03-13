@@ -521,7 +521,7 @@ class App(Cmd):
 
         for host in mission.hosts:
             if isinstance(host, str):
-                host_node.add(f'#{host} (save to update)')
+                hosts_node.add(f'#{host} (save to update)')
                 continue
 
             host_node = hosts_node.add(('[green]:heavy_check_mark: ' if host.checked else '[yellow]:hourglass_not_done:') +
