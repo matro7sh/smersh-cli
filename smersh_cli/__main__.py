@@ -373,11 +373,15 @@ class App(Cmd):
             self.console.print('[red]You need to be in a context to save something')
         else:
             try:
-                self.context = self.context.save(self.api)
-                self.context = self.context.fetch(self.api)
-                self.update_prompt()
+                try:
+                    self.context = self.context.save(self.api)
+                    self.context = self.context.fetch(self.api)
+                    self.update_prompt()
 
-                self.console.print('[green]The object was saved successfully')
+                    self.console.print('[green]The object was saved successfully')
+                except TypeError:
+                    # The user probably tried to save a model containing an object with an undefined id
+                    self.console.print('[red]You must set every object identifier before saving')
 
             except requests.exceptions.HTTPError as e:
                 self.console.print(f'[red]Unable to save the object. {e}')
