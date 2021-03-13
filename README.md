@@ -14,7 +14,7 @@ python main.py <smersh api url>
 You will then be asked to enter your credentials before having an interactive command line interface (see below for an 
 example).
 
-![Example of a smersh-cli session](img/preview.png)
+![Example of a smersh-cli session](img/example.png)
 
 ## Commands
 
@@ -91,4 +91,4 @@ You can then use smersh-cli simply by using the command `smersh-cli`.
 
 # License
 
-This license has no yet been chosen. We will update this section when we know which license to use.
+The license has no yet been chosen. We will update this section when we know which license to use.
