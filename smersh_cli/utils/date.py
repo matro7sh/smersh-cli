@@ -1,8 +1,16 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 def date_from_iso(iso):
-    return datetime.fromisoformat(iso)
+    return datetime.fromisoformat(iso).astimezone(timezone.utc)
+
+
+def date_to_iso(date):
+    return date.isoformat(timespec='seconds')
+
+
+def now():
+    return datetime.now(timezone.utc)
 
 
 def format_delta(date1, date2):
