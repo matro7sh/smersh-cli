@@ -1,18 +1,19 @@
 import argparse
 import sys
+from datetime import datetime, timezone
 
 import requests
 from cmd2 import Cmd, Cmd2ArgumentParser, with_argparser, with_argument_list
 from rich import box
 from rich.console import Console
-from rich.layout import Layout
 from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
+from rich.tree import Tree
 
 from .api import SmershAPI, APIRoles
-from .models import User, Mission, Client, Vuln, PositivePoint, NegativePoint, Model
-
+from .models import User, Mission, Client, Vuln, PositivePoint, NegativePoint, Model, Host
+from .utils import date
 
 TABLE_BOX_TYPE = box.ROUNDED
 COMMAND_PROMPT = '\x1b[1;31mSMERSH {}>>\x1b[0m '
@@ -398,7 +399,7 @@ class App(Cmd):
 
     def get_print_function_from_model_name(self, model_name):
         return {
-            'mission': self.print_missions_table,
+            'mission': self.print_missions,
             'user': self.print_users_table,
             'client': self.print_clients_table,
             'vuln': self.print_vulns_table,
@@ -410,23 +411,97 @@ class App(Cmd):
     def get_printable_flag(flag, yes_text='Yes', no_text='No'):
         return f'[green]{yes_text}' if flag else f'[red]{no_text}'
 
+    def print_missions(self, missions):
+        if len(missions) > 1:
+            self.print_missions_table(missions)
+        else:
+            self.print_single_mission(missions[0])
+
     def print_missions_table(self, missions):
         table = Table(box=TABLE_BOX_TYPE)
 
-        table.add_column('ID', justify='center', style='cyan')
-        table.add_column('Name', justify='center', style='magenta')
-        table.add_column('Start date', justify='center', style='green')
-        table.add_column('End date', justify='center', style='red')
+        table.add_column('ID', justify='center')
+        table.add_column('Name', justify='center')
+        table.add_column('Duration', justify='center')
+        table.add_column('Status', justify='center')
         table.add_column('Nmap', justify='center')
         table.add_column('Nessus', justify='center')
+        table.add_column('Hosts', justify='center')
 
         for mission in missions:
-            nmap = App.get_printable_flag(mission.nmap, 'Done', 'To do')
-            nessus = App.get_printable_flag(mission.nessus, 'Done', 'To do')
+            nmap = self.get_printable_flag(mission.nmap, 'Done', 'To do')
+            nessus = self.get_printable_flag(mission.nessus, 'Done', 'To do')
+            start_date = date.date_from_iso(mission.start_date)
+            end_date = date.date_from_iso(mission.end_date)
+            now = datetime.now(timezone.utc)
+            _, duration = date.format_delta(end_date, start_date)
+            negative, delta = date.format_delta(now, end_date)
 
-            table.add_row(mission.id, mission.name, mission.start_date, mission.end_date, nmap, nessus)
+            if negative:
+                delta = f'[red]Closed {delta} ago[/red]'
+            else:
+                delta = f'[green]{delta} remaining[/green]'
+
+            table.add_row(mission.id, mission.name, duration, delta, nmap, nessus, str(len(mission.hosts)))
 
         self.console.print(table)
+
+    def print_single_mission(self, mission):
+        layout = Tree(f'#{mission.id} - [bold]{mission.name}[/bold] ({mission.mission_type.name})')
+        negative, delta = date.format_delta(datetime.now(timezone.utc), date.date_from_iso(mission.end_date))
+
+        if negative:
+            layout.add(f':two-thirty: [red]Closed {delta} ago')
+        else:
+            layout.add(f':two-thirty: [green]{delta} remaining')
+
+        layout.add(('[green]:heavy_check_mark: ' if mission.nmap else '[yellow]:hourglass_not_done:') + ' Nmap')
+        layout.add(('[green]:heavy_check_mark: ' if mission.nessus else '[yellow]:hourglass_not_done:') + ' Nessus')
+
+        if mission.path_to_codi is None:
+            layout.add(f':book: [bold red]CodiMD not set')
+        else:
+            layout.add(f':book: CodiMD > {mission.path_to_codi}')
+
+        if mission.credentials is None:
+            layout.add(f':locked_with_key: [bold red]Credentials not set')
+        else:
+            layout.add(f':locked_with_key: Credentials > {mission.credentials}')
+
+        clients_node = layout.add(':bust_in_silhouette: [blue]Clients[/blue]', guide_style='blue')
+
+        for client in mission.clients:
+            client_node = clients_node.add(f'[bold]{client.first_name} {client.last_name}[/bold] ({client.name})',
+                                           guide_style='white')
+
+            client_node.add(client.mail)
+            client_node.add(client.phone)
+
+        pentesters_node = layout.add(':robot: [red]Pentesters[/red]', guide_style='red')
+
+        for pentester in mission.users:
+            pentesters_node.add(pentester.username)
+
+        hosts_node = layout.add(':desktop_computer: Scope')
+
+        for host in mission.hosts:
+            host_node = hosts_node.add(('[green]:heavy_check_mark: ' if host.checked else '[yellow]:hourglass_not_done:') +
+                                       f' #{host.id} - {host.name}')
+
+            for host_vuln in host.host_vulns:
+                vuln = Vuln.get(self.api, host_vuln.vuln.id)
+                impact = host_vuln.impact
+
+                host_node.add(f'#{host_vuln.id} - {vuln.name} ({impact.name}) - {host_vuln.current_state}')
+
+        steps_node = layout.add(':spiral_notepad: [magenta]Activity', guide_style='magenta')
+
+        for step in mission.steps:
+            _, delta = date.format_delta(datetime.now(timezone.utc), date.date_from_iso(step.created_at))
+
+            steps_node.add(f'[bold]{delta} ago[/bold] - #{step.id} - {step.description}')
+
+        self.console.print(layout)
 
     def get_roles_layout(self, roles):
         layout = Table.grid()
