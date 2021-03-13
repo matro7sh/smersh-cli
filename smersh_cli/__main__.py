@@ -374,6 +374,7 @@ class App(Cmd):
         else:
             try:
                 self.context = self.context.save(self.api)
+                self.context = self.context.fetch(self.api)
                 self.update_prompt()
 
                 self.console.print('[green]The object was saved successfully')
