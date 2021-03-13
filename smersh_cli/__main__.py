@@ -12,7 +12,7 @@ from rich.text import Text
 from rich.tree import Tree
 
 from .api import SmershAPI, APIRoles
-from .models import User, Mission, Client, Vuln, PositivePoint, NegativePoint, Model, Host, Step
+from .models import User, Mission, Client, Vuln, PositivePoint, NegativePoint, Model, Host, Step, HostVuln, Impact
 from .utils import date
 
 TABLE_BOX_TYPE = box.ROUNDED
@@ -33,7 +33,7 @@ def get_show_parser():
     parser.add_argument(
         'model',
         nargs='?',
-        choices=['mission', 'user', 'client', 'vuln', 'positive_point', 'negative_point', 'step', 'host'],
+        choices=['mission', 'user', 'client', 'vuln', 'positive_point', 'negative_point', 'step', 'host', 'impact'],
         default=None,
         help='The object type to query information about.'
     )
@@ -61,7 +61,7 @@ def get_use_parser():
 
     parser.add_argument(
         'model',
-        choices=['mission', 'user', 'client', 'vuln', 'positive_point', 'negative_point', 'step', 'host'],
+        choices=['mission', 'user', 'client', 'vuln', 'positive_point', 'negative_point', 'step', 'host', 'host_vuln'],
         help='The object type to query information about.'
     )
 
@@ -190,6 +190,12 @@ def get_assign_parser(model):
         add_bool_subparser(subparsers, 'checked')
         add_str_subparser(subparsers, 'technology')
         add_object_subparser(subparsers, 'mission')
+
+    elif isinstance(model, HostVuln):
+        add_object_subparser(subparsers, 'host')
+        add_object_subparser(subparsers, 'vuln')
+        add_object_subparser(subparsers, 'impact')
+        add_str_subparser(subparsers, 'current_state')
 
     return parser
 
@@ -423,7 +429,9 @@ class App(Cmd):
             'positivepoint': PositivePoint,
             'negativepoint': NegativePoint,
             'step': Step,
-            'host': Host
+            'host': Host,
+            'impact': Impact,
+            'hostvuln': HostVuln
         }[model_name.replace('_', '')]
 
     def get_print_function_from_model_name(self, model_name):
@@ -434,8 +442,10 @@ class App(Cmd):
             'vuln': self.print_vulns_table,
             'positivepoint': self.print_points_table,
             'negativepoint': self.print_points_table,
-            'step': self.print_step_table,
-            'host': self.print_host_table
+            'step': self.print_steps_table,
+            'host': self.print_hosts_table,
+            'impact': self.print_impacts_list,
+            'hostvuln': self.print_host_vuln
         }[model_name.replace('_', '')]
 
     @staticmethod
@@ -658,7 +668,7 @@ class App(Cmd):
 
         self.console.print(table)
 
-    def print_step_table(self, steps):
+    def print_steps_table(self, steps):
         table = Table(box=TABLE_BOX_TYPE)
 
         table.add_column('ID', justify='center')
@@ -671,7 +681,7 @@ class App(Cmd):
 
         self.console.print(table)
 
-    def print_host_table(self, hosts):
+    def print_hosts_table(self, hosts):
         table = Table(box=TABLE_BOX_TYPE)
 
         table.add_column('ID', justify='center')
@@ -686,6 +696,46 @@ class App(Cmd):
             table.add_row(host.id, host.name, host.technology, checked, str(len(host.host_vulns)))
 
         self.console.print(table)
+
+    def print_impacts_list(self, impacts):
+        tree = Tree('[bold]Impacts')
+
+        for impact in impacts:
+            tree.add(f'[bold]#{impact.id}[/bold] - {impact.name}')
+
+        self.console.print(tree)
+
+    def print_host_vuln(self, host_vuln):
+        assert(len(host_vuln) == 1)
+
+        host_vuln = host_vuln[0]
+        host = vuln = impact = '[bold red]Undefined[/bold red]'
+
+        if host_vuln.host is not None:
+            if isinstance(host_vuln.host, str):
+                host_object = Host.get(self.api, host_vuln.host)
+            else:
+                host_object = host_vuln.host.fetch(self.api)
+
+            host = f'[bold]#{host_object.id}[/bold] - {host_object.name}'
+
+        if host_vuln.vuln is not None:
+            if isinstance(host_vuln.vuln, str):
+                vuln_object = Vuln.get(self.api, host_vuln.vuln)
+            else:
+                vuln_object = host_vuln.vuln.fetch(self.api)
+
+            vuln = f'[bold]#{vuln_object.id}[/bold] - {vuln_object.name}'
+
+        if host_vuln.impact is not None:
+            if isinstance(host_vuln.impact, str):
+                impact_object = Impact.get(self.api, host_vuln.impact)
+            else:
+                impact_object = host_vuln.impact.fetch(self.api)
+
+            impact = f'{impact_object.name}'
+
+        self.console.print(f'{vuln} ({impact}) <=> {host}', highlight=False)
 
 
 def parse_args():
