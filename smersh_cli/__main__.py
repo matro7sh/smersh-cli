@@ -139,9 +139,9 @@ def get_assign_parser(model):
 
     if isinstance(model, Mission):
         add_str_subparser(subparsers, 'name')
-        add_str_subparser(subparsers, 'start_date')  # TODO: Add a date subparser
+        add_date_subparser(subparsers, 'start_date')
         add_str_subparser(subparsers, 'path_to_codi')
-        add_str_subparser(subparsers, 'end_date')  # TODO: Add a date subparser
+        add_date_subparser(subparsers, 'end_date')
         add_list_subparser(subparsers, 'users', item_type=object_id_checker)
         add_bool_subparser(subparsers, 'nmap')
         add_bool_subparser(subparsers, 'nessus')
