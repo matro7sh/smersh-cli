@@ -33,7 +33,7 @@ def get_show_parser():
     parser.add_argument(
         'model',
         nargs='?',
-        choices=['mission', 'user', 'client', 'vuln', 'positive_point', 'negative_point', 'step'],
+        choices=['mission', 'user', 'client', 'vuln', 'positive_point', 'negative_point', 'step', 'host'],
         default=None,
         help='The object type to query information about.'
     )
@@ -61,7 +61,7 @@ def get_use_parser():
 
     parser.add_argument(
         'model',
-        choices=['mission', 'user', 'client', 'vuln', 'positive_point', 'negative_point', 'step'],
+        choices=['mission', 'user', 'client', 'vuln', 'positive_point', 'negative_point', 'step', 'host'],
         help='The object type to query information about.'
     )
 
@@ -183,6 +183,12 @@ def get_assign_parser(model):
         add_str_subparser(subparsers, 'description')
         add_date_subparser(subparsers, 'find_at')
         add_date_subparser(subparsers, 'created_at')
+        add_object_subparser(subparsers, 'mission')
+
+    elif isinstance(model, Host):
+        add_str_subparser(subparsers, 'name')
+        add_bool_subparser(subparsers, 'checked')
+        add_str_subparser(subparsers, 'technology')
         add_object_subparser(subparsers, 'mission')
 
     return parser
@@ -411,7 +417,8 @@ class App(Cmd):
             'vuln': Vuln,
             'positivepoint': PositivePoint,
             'negativepoint': NegativePoint,
-            'step': Step
+            'step': Step,
+            'host': Host
         }[model_name.replace('_', '')]
 
     def get_print_function_from_model_name(self, model_name):
@@ -422,7 +429,8 @@ class App(Cmd):
             'vuln': self.print_vulns_table,
             'positivepoint': self.print_points_table,
             'negativepoint': self.print_points_table,
-            'step': self.print_step_table
+            'step': self.print_step_table,
+            'host': self.print_host_table
         }[model_name.replace('_', '')]
 
     @staticmethod
@@ -639,6 +647,22 @@ class App(Cmd):
 
         for step in steps:
             table.add_row(step.id, step.description, step.created_at, step.find_at)
+
+        self.console.print(table)
+
+    def print_host_table(self, hosts):
+        table = Table(box=TABLE_BOX_TYPE)
+
+        table.add_column('ID', justify='center')
+        table.add_column('Name', justify='center')
+        table.add_column('Technology', justify='center')
+        table.add_column('Checked', justify='center')
+        table.add_column('Vulnerabilities', justify='center')
+
+        for host in hosts:
+            checked = self.get_printable_flag(host.checked)
+
+            table.add_row(host.id, host.name, host.technology, checked, str(len(host.host_vulns)))
 
         self.console.print(table)
 
