@@ -91,4 +91,4 @@ You can then use smersh-cli simply by using the command `smersh-cli`.
 
 # License
 
-This license has no yet been chosen. We will update this section when we know which license to use.
+The license has no yet been chosen. We will update this section when we know which license to use.
