@@ -12,7 +12,7 @@ from rich.text import Text
 from rich.tree import Tree
 
 from .api import SmershAPI, APIRoles
-from .models import User, Mission, Client, Vuln, PositivePoint, NegativePoint, Model, Host
+from .models import User, Mission, Client, Vuln, PositivePoint, NegativePoint, Model, Host, Step
 from .utils import date
 
 TABLE_BOX_TYPE = box.ROUNDED
@@ -33,7 +33,7 @@ def get_show_parser():
     parser.add_argument(
         'model',
         nargs='?',
-        choices=['mission', 'user', 'client', 'vuln', 'positive_point', 'negative_point'],
+        choices=['mission', 'user', 'client', 'vuln', 'positive_point', 'negative_point', 'step'],
         default=None,
         help='The object type to query information about.'
     )
@@ -61,7 +61,7 @@ def get_use_parser():
 
     parser.add_argument(
         'model',
-        choices=['mission', 'user', 'client', 'vuln', 'positive_point', 'negative_point'],
+        choices=['mission', 'user', 'client', 'vuln', 'positive_point', 'negative_point', 'step'],
         help='The object type to query information about.'
     )
 
@@ -101,6 +101,12 @@ def get_assign_parser(model):
 
         raise argparse.ArgumentTypeError(f'Invalid role name: {s}')
 
+    def date_checker(s):
+        if s.lower() == 'now':
+            return date.date_to_iso(date.now())
+
+        return date.date_to_iso(date.date_from_iso(s))
+
     def add_str_subparser(_subparsers, field_name):
         str_subparser = _subparsers.add_parser(field_name)
         str_subparser.add_argument('value', type=str)
@@ -123,6 +129,10 @@ def get_assign_parser(model):
     def add_object_subparser(_subparsers, field_name):
         object_subparser = _subparsers.add_parser(field_name)
         object_subparser.add_argument('value', type=object_id_checker)
+
+    def add_date_subparser(_subparsers, field_name):
+        date_subparser = _subparsers.add_parser(field_name)
+        date_subparser.add_argument('value', type=date_checker)
 
     parser = Cmd2ArgumentParser()
     subparsers = parser.add_subparsers(dest='field')
@@ -168,6 +178,12 @@ def get_assign_parser(model):
     elif isinstance(model, PositivePoint) or isinstance(model, NegativePoint):
         add_str_subparser(subparsers, 'name')
         add_str_subparser(subparsers, 'description')
+
+    elif isinstance(model, Step):
+        add_str_subparser(subparsers, 'description')
+        add_date_subparser(subparsers, 'find_at')
+        add_date_subparser(subparsers, 'created_at')
+        add_object_subparser(subparsers, 'mission')
 
     return parser
 
@@ -394,7 +410,8 @@ class App(Cmd):
             'client': Client,
             'vuln': Vuln,
             'positivepoint': PositivePoint,
-            'negativepoint': NegativePoint
+            'negativepoint': NegativePoint,
+            'step': Step
         }[model_name.replace('_', '')]
 
     def get_print_function_from_model_name(self, model_name):
@@ -404,7 +421,8 @@ class App(Cmd):
             'client': self.print_clients_table,
             'vuln': self.print_vulns_table,
             'positivepoint': self.print_points_table,
-            'negativepoint': self.print_points_table
+            'negativepoint': self.print_points_table,
+            'step': self.print_step_table
         }[model_name.replace('_', '')]
 
     @staticmethod
@@ -608,6 +626,19 @@ class App(Cmd):
 
         for point in points:
             table.add_row(point.id, point.name, point.description)
+
+        self.console.print(table)
+
+    def print_step_table(self, steps):
+        table = Table(box=TABLE_BOX_TYPE)
+
+        table.add_column('ID', justify='center')
+        table.add_column('Description', justify='center')
+        table.add_column('Created', justify='center')
+        table.add_column('Found', justify='center')
+
+        for step in steps:
+            table.add_row(step.id, step.description, step.created_at, step.find_at)
 
         self.console.print(table)
 
