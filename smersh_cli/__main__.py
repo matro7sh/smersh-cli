@@ -158,6 +158,10 @@ def get_assign_parser(model):
         add_list_subparser(subparsers, 'roles', item_type=role_checker)
         add_bool_subparser(subparsers, 'enabled')
         add_list_subparser(subparsers, 'missions', item_type=object_id_checker)
+        add_str_subparser(subparsers, 'phone')
+        add_str_subparser(subparsers, 'city')
+        add_str_subparser(subparsers, 'trigram')
+        add_str_subparser(subparsers, 'mail')
 
     elif isinstance(model, Client):
         add_str_subparser(subparsers, 'name')
@@ -570,7 +574,10 @@ class App(Cmd):
         table = Table(box=TABLE_BOX_TYPE, show_lines=True)
 
         table.add_column('ID', justify='center')
-        table.add_column('Name', justify='center')
+        table.add_column('Name (trigram)', justify='center')
+        table.add_column('Phone', justify='center')
+        table.add_column('City', justify='center')
+        table.add_column('Email', justify='center')
         table.add_column('Enabled', justify='center')
         table.add_column('Roles', justify='center')
         table.add_column('Assigned missions', justify='center')
@@ -584,7 +591,12 @@ class App(Cmd):
             else:
                 missions = ', '.join([mission.id for mission in user.missions])
 
-            table.add_row(user.id, user.username, enabled, roles_layout, missions)
+            if user.trigram is None:
+                username = user.username
+            else:
+                username = f'{user.username} ({user.trigram})'
+
+            table.add_row(user.id, username, user.phone, user.city, user.mail, enabled, roles_layout, missions)
 
         self.console.print(table)
 
