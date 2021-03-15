@@ -214,6 +214,10 @@ class User(Model):
     enabled: Optional[bool] = False
     missions: Optional[List['Mission']] = default_field([])
     password: Optional[str] = None
+    phone: Optional[str] = None
+    city: Optional[str] = None
+    trigram: Optional[str] = None
+    mail: Optional[str] = None
 
 
     @property
