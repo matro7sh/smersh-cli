@@ -784,7 +784,8 @@ def main():
 
             try:
                 if api.authenticate(username, password):
-                    console.print(_('[green]:heavy_check_mark: Successfully logged in'))
+                    username = User.get(api, api.authenticated_user_id).username
+                    console.print(_('[green]:heavy_check_mark: Hello, [bold]{}[/bold]. You are successfully logged in').format(username))
                 else:
                     console.print(_('[red]:cross_mark: Unable to log you in. Your credentials seem invalid'))
             except requests.exceptions.ConnectionError:
