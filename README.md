@@ -89,6 +89,19 @@ python setup.py install
 
 You can then use smersh-cli simply by using the command `smersh-cli`.
 
+# Internationalization
+
+smersh-cli supports internationalization through the `gettext` library. This library will automatically detect and use 
+your system language. If, however, you want to use (force) another language you can prefix the usual command by 
+`LC_MESSAGES=<desired_two_letters_language_code>`.
+
+Currently supported languages:
+
+* English (default)
+* Français (100%)
+
+Feel free to create a pull request with a translation file for your language.
+
 # License
 
 The license has no yet been chosen. We will update this section when we know which license to use.

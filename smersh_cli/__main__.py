@@ -1,5 +1,7 @@
 import argparse
 import sys
+import gettext
+import os
 from datetime import datetime, timezone
 
 import requests
@@ -15,8 +17,13 @@ from .api import SmershAPI, APIRoles
 from .models import User, Mission, Client, Vuln, PositivePoint, NegativePoint, Model, Host, Step, HostVuln, Impact
 from .utils import date
 
+PACKAGE_NAME = 'smersh-cli'
 TABLE_BOX_TYPE = box.ROUNDED
 COMMAND_PROMPT = '\x1b[1;31mSMERSH {}>>\x1b[0m '
+
+gettext.bindtextdomain(PACKAGE_NAME, localedir=os.path.join(os.path.abspath(os.path.dirname(__file__)), 'locale'))
+gettext.textdomain(PACKAGE_NAME)
+_ = gettext.gettext
 
 
 def has_ipython():
@@ -35,22 +42,22 @@ def get_show_parser():
         nargs='?',
         choices=['mission', 'user', 'client', 'vuln', 'positive_point', 'negative_point', 'step', 'host', 'impact'],
         default=None,
-        help='The object type to query information about.'
+        help=_('The object type to query information about.')
     )
 
     parser.add_argument(
         'ids',
         nargs='*',
         type=int,
-        help='A list of identifiers (separated by spaces) of specific objects to print information about. If this '
-             'list is empty, the program will print every object.'
+        help=_('A list of identifiers (separated by spaces) of specific objects to print information about. If this '
+               'list is empty, the program will print every object.')
     )
 
     parser.add_argument(
         '-r',
         '--raw',
         action='store_true',
-        help='Whether to print the data in raw (without formatting) or in a table. Default is to print in a table.'
+        help=_('Whether to print the data in raw (without formatting) or in a table. Default is to print in a table.')
     )
 
     return parser
@@ -62,7 +69,7 @@ def get_use_parser():
     parser.add_argument(
         'model',
         choices=['mission', 'user', 'client', 'vuln', 'positive_point', 'negative_point', 'step', 'host', 'host_vuln'],
-        help='The object type to query information about.'
+        help=_('The object type to query information about.')
     )
 
     parser.add_argument(
@@ -70,7 +77,7 @@ def get_use_parser():
         nargs='?',
         type=int,
         default=None,
-        help='An optional identifier. If omitted, the command will assume you want to create a new object.'
+        help=_('An optional identifier. If omitted, the command will assume you want to create a new object.')
     )
 
     return parser
@@ -81,7 +88,7 @@ def get_assign_parser(model):
         i = int(o)
 
         if i < 0:
-            raise argparse.ArgumentTypeError('The object ID must be positive')
+            raise argparse.ArgumentTypeError(_('The object ID must be positive'))
 
         return o
 
@@ -93,13 +100,13 @@ def get_assign_parser(model):
         elif v.lower() in ('no', 'false', 'f', 'n', '0'):
             return False
         else:
-            raise argparse.ArgumentTypeError('Boolean value expected.')
+            raise argparse.ArgumentTypeError(_('Boolean value expected'))
 
     def role_checker(s):
         if hasattr(APIRoles, s):
             return APIRoles[s].name
 
-        raise argparse.ArgumentTypeError(f'Invalid role name: {s}')
+        raise argparse.ArgumentTypeError(_('Invalid role name: {}').format(s))
 
     def date_checker(s):
         if s.lower() == 'now':
@@ -112,7 +119,7 @@ def get_assign_parser(model):
         str_subparser.add_argument('value', type=str)
 
     def add_list_subparser(_subparsers, field_name, item_type=None, choices=None):
-        assert(not ((item_type is None) and (choices is None)))
+        assert (not ((item_type is None) and (choices is None)))
 
         list_subparser = _subparsers.add_parser(field_name)
         list_subparser.add_argument('action', choices=['add', 'remove'])
@@ -232,7 +239,7 @@ class App(Cmd):
 
         if namespace.model is None:
             if self.context is None:
-                self.console.print('[red]There is no context')
+                self.console.print(_('[red]There is no context'))
             else:
                 if namespace.raw:
                     self.console.print(self.context)
@@ -262,14 +269,14 @@ class App(Cmd):
                     objects.append(model.get(self.api, id))
                 except requests.exceptions.HTTPError as e:
                     if e.response.status_code == 404:
-                        self.console.print(f'[yellow]Unable to find an object with id: {id}')
+                        self.console.print(_('[yellow]Unable to find an object with id: {}').format(id))
                     else:
-                        self.console.print(f'[red]An HTTP error occurred: {e}')
+                        self.console.print(_('[red]An HTTP error occurred: {}').format(e))
 
             if len(objects) > 0:
                 print_function(objects)
             else:
-                self.console.print('Your request returned no object :(')
+                self.console.print(_('Your request returned no object :('))
 
     @with_argparser(get_use_parser())
     def do_use(self, namespace):
@@ -289,9 +296,9 @@ class App(Cmd):
                 self.context = model.get(self.api, id)
             except requests.exceptions.HTTPError as e:
                 if e.response.status_code == 404:
-                    self.console.print(f'[yellow]Unable to find an object with id: {id}')
+                    self.console.print(_('[yellow]Unable to find an object with id: {}').format(id))
                 else:
-                    self.console.print(f'[red]An HTTP error occurred: {e}')
+                    self.console.print(_('[red]An HTTP error occurred: {}').format(e))
 
         self.update_prompt()
 
@@ -324,7 +331,7 @@ class App(Cmd):
         """
 
         if self.context is None:
-            self.console.print('[red]You must enter into a context before setting a field')
+            self.console.print(_('[red]You must enter into a context before setting a field'))
             return
 
         try:
@@ -336,8 +343,7 @@ class App(Cmd):
                 if args.action == 'add':
                     for e in args.value:
                         if e in l:
-                            self.console.print(f'[yellow]The item "{e}" was already added into the field named '
-                                               f'"{args.field}"')
+                            self.console.print(_('[yellow]The item "{}" was already added into the field named "{}"').format(e, args.field))
                         else:
                             l.append(e)
                 else:
@@ -357,7 +363,7 @@ class App(Cmd):
             # Just ignore the SystemExit exception. The error message is printed by argparse
             pass
 
-    def do_exit(self, _):
+    def do_exit(self, __):
         """
         Exit the current context. This command will raise an error if you have no context selected.
 
@@ -365,12 +371,12 @@ class App(Cmd):
         """
 
         if self.context is None:
-            self.console.print('[red]You have no context to exit')
+            self.console.print(_('[red]You have no context to exit'))
         else:
             self.context = None
             self.update_prompt()
 
-    def do_save(self, _):
+    def do_save(self, __):
         """
         Save the object designated by the current context. The object will be either updated or created depending of its
         identifier (`id` field). If the identifier is None, the object is considered new and will be created. Otherwise,
@@ -380,7 +386,7 @@ class App(Cmd):
         """
 
         if self.context is None:
-            self.console.print('[red]You need to be in a context to save something')
+            self.console.print(_('[red]You need to be in a context to save something'))
         else:
             try:
                 try:
@@ -388,39 +394,39 @@ class App(Cmd):
                     self.context = self.context.fetch(self.api)
                     self.update_prompt()
 
-                    self.console.print('[green]The object was saved successfully')
+                    self.console.print(_('[green]The object was saved successfully'))
                 except TypeError:
                     # The user probably tried to save a model containing an object with an undefined id
-                    self.console.print('[red]You must set every object identifier before saving')
+                    self.console.print(_('[red]You must set every object identifier before saving'))
 
             except requests.exceptions.HTTPError as e:
-                self.console.print(f'[red]Unable to save the object. {e}')
+                self.console.print(_('[red]Unable to save the object: {}').format(e))
 
-    def do_delete(self, _):
+    def do_delete(self, __):
         """
         Delete the object designated by the current context. This command will raise an error if you have no context
         selected or if you try to delete a new object (object identifier is None).
         """
 
         if self.context is None:
-            self.console.print('[red]You must be in a context to delete something')
+            self.console.print(_('[red]You must be in a context to delete something'))
         elif self.context.id is None:
-            self.console.print('[red]You can\'t delete a NEW object')
+            self.console.print(_('[red]You can\'t delete a NEW object'))
         else:
             if self.context.delete(self.api):
-                self.console.print('[green]The object was deleted successfully')
+                self.console.print(_('[green]The object was deleted successfully'))
 
                 self.context = None
                 self.update_prompt()
             else:
-                self.console.print('[red]An error occurred. Unable to delete the object')
+                self.console.print(_('[red]An error occurred. Unable to delete the object'))
 
     def update_prompt(self):
         if self.context is None:
             self.prompt = COMMAND_PROMPT.format('')
         else:
             model_name = self.context.__class__.__name__
-            id = '\x1b[1;39mNEW\x1b[0m' if (self.context.id is None) else self.context.id
+            id = _('\x1b[1;39mNEW\x1b[0m') if (self.context.id is None) else self.context.id
 
             self.prompt = COMMAND_PROMPT.format(f'-\x1b[0m {model_name}[{id}]\x1b[1;31m ')
 
@@ -453,7 +459,7 @@ class App(Cmd):
         }[model_name.replace('_', '')]
 
     @staticmethod
-    def get_printable_flag(flag, yes_text='Yes', no_text='No'):
+    def get_printable_flag(flag, yes_text=_('Yes'), no_text=_('No')):
         return f'[green]{yes_text}' if flag else f'[red]{no_text}'
 
     def print_missions(self, missions):
@@ -465,27 +471,27 @@ class App(Cmd):
     def print_missions_table(self, missions):
         table = Table(box=TABLE_BOX_TYPE)
 
-        table.add_column('ID', justify='center')
-        table.add_column('Name', justify='center')
-        table.add_column('Duration', justify='center')
-        table.add_column('Status', justify='center')
-        table.add_column('Nmap', justify='center')
-        table.add_column('Nessus', justify='center')
-        table.add_column('Hosts', justify='center')
+        table.add_column(_('ID'), justify='center')
+        table.add_column(_('Name'), justify='center')
+        table.add_column(_('Duration'), justify='center')
+        table.add_column(_('Status'), justify='center')
+        table.add_column(_('Nmap'), justify='center')
+        table.add_column(_('Nessus'), justify='center')
+        table.add_column(_('Hosts'), justify='center')
 
         for mission in missions:
-            nmap = self.get_printable_flag(mission.nmap, 'Done', 'To do')
-            nessus = self.get_printable_flag(mission.nessus, 'Done', 'To do')
+            nmap = self.get_printable_flag(mission.nmap, _('Done'), _('To do'))
+            nessus = self.get_printable_flag(mission.nessus, _('Done'), _('To do'))
             start_date = date.date_from_iso(mission.start_date)
             end_date = date.date_from_iso(mission.end_date)
             now = datetime.now(timezone.utc)
-            _, duration = date.format_delta(end_date, start_date)
+            __, duration = date.format_delta(end_date, start_date)
             negative, delta = date.format_delta(now, end_date)
 
             if negative:
-                delta = f'[red]Closed {delta} ago[/red]'
+                delta = _('[red]Closed {} ago[/red]'.format(delta))
             else:
-                delta = f'[green]{delta} remaining[/green]'
+                delta = _('[green]{} remaining[/green]').format(delta)
 
             table.add_row(mission.id, mission.name, duration, delta, nmap, nessus, str(len(mission.hosts)))
 
@@ -496,28 +502,28 @@ class App(Cmd):
         negative, delta = date.format_delta(datetime.now(timezone.utc), date.date_from_iso(mission.end_date))
 
         if negative:
-            layout.add(f':two-thirty: [red]Closed {delta} ago')
+            layout.add(_(':two-thirty: [red]Closed {} ago').format(delta))
         else:
-            layout.add(f':two-thirty: [green]{delta} remaining')
+            layout.add(_(':two-thirty: [green]{} remaining').format(delta))
 
-        layout.add(('[green]:heavy_check_mark: ' if mission.nmap else '[yellow]:hourglass_not_done:') + ' Nmap')
-        layout.add(('[green]:heavy_check_mark: ' if mission.nessus else '[yellow]:hourglass_not_done:') + ' Nessus')
+        layout.add(('[green]:heavy_check_mark: ' if mission.nmap else '[yellow]:hourglass_not_done:') + _(' Nmap'))
+        layout.add(('[green]:heavy_check_mark: ' if mission.nessus else '[yellow]:hourglass_not_done:') + _(' Nessus'))
 
         if mission.path_to_codi is None:
-            layout.add(f':book: [bold red]CodiMD not set')
+            layout.add(_(f':book: [bold red]CodiMD not set'))
         else:
             layout.add(f':book: CodiMD > {mission.path_to_codi}')
 
         if mission.credentials is None:
-            layout.add(f':locked_with_key: [bold red]Credentials not set')
+            layout.add(_(f':locked_with_key: [bold red]Credentials not set'))
         else:
-            layout.add(f':locked_with_key: Credentials > {mission.credentials}')
+            layout.add(_(':locked_with_key: Credentials > {}').format(mission.credentials))
 
-        clients_node = layout.add(':bust_in_silhouette: [blue]Clients[/blue]', guide_style='blue')
+        clients_node = layout.add(_(':bust_in_silhouette: [blue]Clients[/blue]'), guide_style='blue')
 
         for client in mission.clients:
             if isinstance(client, str):
-                clients_node.add(f'[bold]#{client}[/bold] (save to update)')
+                clients_node.add(_('[bold]#{}[/bold] (save to update)').format(client))
                 continue
 
             client_node = clients_node.add(f'[bold]{client.first_name} {client.last_name}[/bold] ({client.name})',
@@ -526,24 +532,25 @@ class App(Cmd):
             client_node.add(client.mail)
             client_node.add(client.phone)
 
-        pentesters_node = layout.add(':robot: [red]Pentesters[/red]', guide_style='red')
+        pentesters_node = layout.add(_(':robot: [red]Pentesters[/red]'), guide_style='red')
 
         for pentester in mission.users:
             if isinstance(pentester, str):
-                pentesters_node.add(f'#{pentester} (save to update)')
+                pentesters_node.add(_('#{} (save to update)').format(pentester))
                 continue
 
             pentesters_node.add(pentester.username)
 
-        hosts_node = layout.add(':desktop_computer: Scope')
+        hosts_node = layout.add(_(':desktop_computer: Scope'))
 
         for host in mission.hosts:
             if isinstance(host, str):
-                hosts_node.add(f'#{host} (save to update)')
+                hosts_node.add(_('#{} (save to update)').format(host))
                 continue
 
-            host_node = hosts_node.add(('[green]:heavy_check_mark: ' if host.checked else '[yellow]:hourglass_not_done:') +
-                                       f' #{host.id} - {host.name}')
+            host_node = hosts_node.add(
+                ('[green]:heavy_check_mark: ' if host.checked else '[yellow]:hourglass_not_done:') +
+                f' #{host.id} - {host.name}')
 
             for host_vuln in host.host_vulns:
                 vuln = Vuln.get(self.api, host_vuln.vuln.id)
@@ -551,16 +558,16 @@ class App(Cmd):
 
                 host_node.add(f'#{host_vuln.id} - {vuln.name} ({impact.name}) - {host_vuln.current_state}')
 
-        steps_node = layout.add(':spiral_notepad: [magenta]Activity', guide_style='magenta')
+        steps_node = layout.add(_(':spiral_notepad: [magenta]Activity'), guide_style='magenta')
 
         for step in mission.steps:
             if isinstance(step, str):
-                steps_node.add(f'#{step} (save to update)')
+                steps_node.add(_('#{} (save to update)').format(step))
                 continue
 
-            _, delta = date.format_delta(datetime.now(timezone.utc), date.date_from_iso(step.created_at))
+            __, delta = date.format_delta(datetime.now(timezone.utc), date.date_from_iso(step.created_at))
 
-            steps_node.add(f'[bold]{delta} ago[/bold] - #{step.id} - {step.description}')
+            steps_node.add(_('[bold]{} ago[/bold] - #{} - {}').format(delta, step.id, step.description))
 
         self.console.print(layout)
 
@@ -582,13 +589,13 @@ class App(Cmd):
             'VulnType': APIRoles.ROLE_VULN_TYPE_GET_LIST
         }
 
-        table.add_column('Model name')
-        table.add_column('List', justify='center')
-        table.add_column('Create', justify='center')
-        table.add_column('Read', justify='center')
-        table.add_column('Update (full)', justify='center')
-        table.add_column('Update (partial)', justify='center')
-        table.add_column('Delete', justify='center')
+        table.add_column(_('Model name'))
+        table.add_column(_('List'), justify='center')
+        table.add_column(_('Create'), justify='center')
+        table.add_column(_('Read'), justify='center')
+        table.add_column(_('Update (full)'), justify='center')
+        table.add_column(_('Update (partial)'), justify='center')
+        table.add_column(_('Delete'), justify='center')
 
         for model_name, offset in roles_groups.items():
             row = [model_name]
@@ -605,28 +612,28 @@ class App(Cmd):
 
         layout.add_column()
         layout.add_row(table)
-        layout.add_row(f'Can upload host: {can_upload_host}')
+        layout.add_row(_('Can upload host: {}').format(can_upload_host))
 
         return layout
 
     def print_users_table(self, users):
         table = Table(box=TABLE_BOX_TYPE, show_lines=True)
 
-        table.add_column('ID', justify='center')
-        table.add_column('Name (trigram)', justify='center')
-        table.add_column('Phone', justify='center')
-        table.add_column('City', justify='center')
-        table.add_column('Email', justify='center')
-        table.add_column('Enabled', justify='center')
-        table.add_column('Roles', justify='center')
-        table.add_column('Assigned missions', justify='center')
+        table.add_column(_('ID'), justify='center')
+        table.add_column(_('Name (trigram)'), justify='center')
+        table.add_column(_('Phone'), justify='center')
+        table.add_column(_('City'), justify='center')
+        table.add_column(_('Email address'), justify='center')
+        table.add_column(_('Enabled'), justify='center')
+        table.add_column(_('Roles'), justify='center')
+        table.add_column(_('Assigned missions'), justify='center')
 
         for user in users:
-            enabled = '[green]Yes' if user.enabled else '[red]No'
+            enabled = _('[green]Yes') if user.enabled else _('[red]No')
             roles_layout = self.get_roles_layout(user.roles_flags)
 
             if len(user.missions) == 0:
-                missions = 'None'
+                missions = _('None')
             else:
                 missions = ', '.join([mission.id for mission in user.missions])
 
@@ -642,11 +649,11 @@ class App(Cmd):
     def print_clients_table(self, clients):
         table = Table(box=TABLE_BOX_TYPE)
 
-        table.add_column('ID', justify='center')
-        table.add_column('Name', justify='center')
-        table.add_column('Contact name', justify='center')
-        table.add_column('Phone number', justify='center')
-        table.add_column('Email address', justify='center')
+        table.add_column(_('ID'), justify='center')
+        table.add_column(_('Name'), justify='center')
+        table.add_column(_('Contact name'), justify='center')
+        table.add_column(_('Phone number'), justify='center')
+        table.add_column(_('Email address'), justify='center')
 
         for client in clients:
             contact_name = f'{client.first_name} {client.last_name}'
@@ -658,10 +665,10 @@ class App(Cmd):
     def print_vulns_table(self, vulns):
         table = Table(box=TABLE_BOX_TYPE, show_lines=True)
 
-        table.add_column('ID', justify='center')
-        table.add_column('Name', justify='center')
-        table.add_column('Description', justify='center')
-        table.add_column('Remediation', justify='center')
+        table.add_column(_('ID'), justify='center')
+        table.add_column(_('Name'), justify='center')
+        table.add_column(_('Description'), justify='center')
+        table.add_column(_('Remediation'), justify='center')
 
         for vuln in vulns:
             table.add_row(vuln.id, vuln.name, vuln.description, vuln.remediation)
@@ -671,9 +678,9 @@ class App(Cmd):
     def print_points_table(self, points):
         table = Table(box=TABLE_BOX_TYPE, show_lines=True)
 
-        table.add_column('ID', justify='center')
-        table.add_column('Name', justify='center')
-        table.add_column('Description', justify='center')
+        table.add_column(_('ID'), justify='center')
+        table.add_column(_('Name'), justify='center')
+        table.add_column(_('Description'), justify='center')
 
         for point in points:
             table.add_row(point.id, point.name, point.description)
@@ -683,10 +690,10 @@ class App(Cmd):
     def print_steps_table(self, steps):
         table = Table(box=TABLE_BOX_TYPE)
 
-        table.add_column('ID', justify='center')
-        table.add_column('Description', justify='center')
-        table.add_column('Created', justify='center')
-        table.add_column('Found', justify='center')
+        table.add_column(_('ID'), justify='center')
+        table.add_column(_('Description'), justify='center')
+        table.add_column(_('Created'), justify='center')
+        table.add_column(_('Found'), justify='center')
 
         for step in steps:
             table.add_row(step.id, step.description, step.created_at, step.find_at)
@@ -696,11 +703,11 @@ class App(Cmd):
     def print_hosts_table(self, hosts):
         table = Table(box=TABLE_BOX_TYPE)
 
-        table.add_column('ID', justify='center')
-        table.add_column('Name', justify='center')
-        table.add_column('Technology', justify='center')
-        table.add_column('Checked', justify='center')
-        table.add_column('Vulnerabilities', justify='center')
+        table.add_column(_('ID'), justify='center')
+        table.add_column(_('Name'), justify='center')
+        table.add_column(_('Technology'), justify='center')
+        table.add_column(_('Checked'), justify='center')
+        table.add_column(_('Vulnerabilities'), justify='center')
 
         for host in hosts:
             checked = self.get_printable_flag(host.checked)
@@ -710,7 +717,7 @@ class App(Cmd):
         self.console.print(table)
 
     def print_impacts_list(self, impacts):
-        tree = Tree('[bold]Impacts')
+        tree = Tree(_('[bold]Impacts'))
 
         for impact in impacts:
             tree.add(f'[bold]#{impact.id}[/bold] - {impact.name}')
@@ -718,10 +725,10 @@ class App(Cmd):
         self.console.print(tree)
 
     def print_host_vuln(self, host_vuln):
-        assert(len(host_vuln) == 1)
+        assert (len(host_vuln) == 1)
 
         host_vuln = host_vuln[0]
-        host = vuln = impact = '[bold red]Undefined[/bold red]'
+        host = vuln = impact = _('[bold red]Undefined[/bold red]')
 
         if host_vuln.host is not None:
             if isinstance(host_vuln.host, str):
@@ -751,16 +758,16 @@ class App(Cmd):
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description='A command-line client for the SMERSH collaborative pentest tool')
+    parser = argparse.ArgumentParser(description=_('A command-line client for the SMERSH collaborative pentest tool'))
 
-    parser.add_argument('url', type=str, help='The URL of the SMERSH backend server')
+    parser.add_argument('url', type=str, help=_('The URL of the SMERSH backend server'))
 
     return parser.parse_args()
 
 
 def print_hello(console):
     # TODO: Replace this by a beautiful ASCII art picture ?
-    console.print(Panel(Text('Welcome to the SMERSH Python client', justify='center')))
+    console.print(Panel(Text(_('Welcome to the SMERSH command-line client'), justify='center')))
 
 
 def main():
@@ -772,22 +779,22 @@ def main():
 
     try:
         while not api.authenticated:
-            username = console.input('Enter your username: ')
-            password = console.input('Enter your password (will not be echoed): ', password=True)
+            username = console.input(_('Enter your username: '))
+            password = console.input(_('Enter your password (will not be echoed): '), password=True)
 
             try:
                 if api.authenticate(username, password):
-                    console.print('[green]:heavy_check_mark: Successfully logged in')
+                    console.print(_('[green]:heavy_check_mark: Successfully logged in'))
                 else:
-                    console.print('[red]:cross_mark: Unable to log you in. Your credentials seem invalid')
+                    console.print(_('[red]:cross_mark: Unable to log you in. Your credentials seem invalid'))
             except requests.exceptions.ConnectionError:
-                console.print("[red]Oh no. I can't connect to the specified URL. Please check there is no typo and "
-                              "that the host accepts connections. Then try again.")
+                console.print(_("[red]Oh no. I can't connect to the specified URL. Please check there is no typo and "
+                                "that the host accepts connections then try again."))
             except requests.exceptions.HTTPError as e:
-                console.print(f'[red]HTTP error {e.response.status_code}: {e}')
+                console.print(_('[red]An HTTP error occurred (code {}): {}').format(e.response.status_code, e))
     except EOFError:
         # The \n is important because we need to not print inside the input caption
-        console.print('\nBye')
+        console.print(_('\nBye'))
         sys.exit(0)
 
     app = App(api)

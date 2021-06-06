@@ -1,0 +1,431 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2021-06-06 14:06+0200\n"
+"PO-Revision-Date: 2021-06-06 14:11+0200\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.4.1\n"
+"X-Poedit-Basepath: ../../..\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Poedit-SearchPath-0: __main__.py\n"
+"X-Poedit-SearchPath-1: utils/date.py\n"
+
+#: __main__.py:45 __main__.py:72
+msgid "The object type to query information about."
+msgstr "Le type de l'objet dont vous voulez obtenir des informations."
+
+#: __main__.py:52
+msgid ""
+"A list of identifiers (separated by spaces) of specific objects to print "
+"information about. If this list is empty, the program will print every "
+"object."
+msgstr ""
+"Les identifiants (séparés par des espaces) des objets à afficher. Si la "
+"liste est vide, le programme affichera tous les objets."
+
+#: __main__.py:60
+msgid ""
+"Whether to print the data in raw (without formatting) or in a table. Default "
+"is to print in a table."
+msgstr "Affiche les données au format brut."
+
+#: __main__.py:80
+msgid ""
+"An optional identifier. If omitted, the command will assume you want to "
+"create a new object."
+msgstr ""
+"L'identifiant de l'objet à sélectionner. Laissez vide si vous souhaitez "
+"créér un nouvel objet."
+
+#: __main__.py:91
+msgid "The object ID must be positive"
+msgstr "L'ID de l'objet doit être positif"
+
+#: __main__.py:103
+msgid "Boolean value expected"
+msgstr "Un booléen est attendu"
+
+#: __main__.py:109
+msgid "Invalid role name: {}"
+msgstr "Nom de rôle invalide : {}"
+
+#: __main__.py:242
+msgid "[red]There is no context"
+msgstr "[red]Aucun objet sélectionné"
+
+#: __main__.py:272 __main__.py:299
+msgid "[yellow]Unable to find an object with id: {}"
+msgstr "[yellow]Impossible de trouver l'objet ayant pour identifiant : {}"
+
+#: __main__.py:274 __main__.py:301
+msgid "[red]An HTTP error occurred: {}"
+msgstr "[red]Une erreur HTTP est survenue : {}"
+
+#: __main__.py:279
+msgid "Your request returned no object :("
+msgstr "Votre requête n'a retourné aucun résultat :("
+
+#: __main__.py:334
+msgid "[red]You must enter into a context before setting a field"
+msgstr "[red]Vous devez sélectionner un objet avant de modifier un champ"
+
+#: __main__.py:346
+msgid "[yellow]The item \"{}\" was already added into the field named \"{}\""
+msgstr "[yellow]L'élément \"{}\" a déjà été ajouté dans le champ nommé \"{}\""
+
+#: __main__.py:374
+msgid "[red]You have no context to exit"
+msgstr "[red]Il n'y a aucun objet sélectionné"
+
+#: __main__.py:389
+msgid "[red]You need to be in a context to save something"
+msgstr "[red]Vous devez sélectionner un objet avant de sauvegarder"
+
+#: __main__.py:397
+msgid "[green]The object was saved successfully"
+msgstr "[green]L'objet a été sauvegardé avec succès"
+
+#: __main__.py:400
+msgid "[red]You must set every object identifier before saving"
+msgstr ""
+"[red]Vous devez renseigner tous les identifiants d'objet avant de sauvegarder"
+
+#: __main__.py:403
+msgid "[red]Unable to save the object: {}"
+msgstr "[red]Impossible de sauvegarder l'objet : {}"
+
+#: __main__.py:412
+msgid "[red]You must be in a context to delete something"
+msgstr "[red]Vous devez sélectionner un objet pour le supprimer"
+
+#: __main__.py:414
+msgid "[red]You can't delete a NEW object"
+msgstr "[red]Vous ne pouvez pas supprimer un nouvel objet"
+
+#: __main__.py:417
+msgid "[green]The object was deleted successfully"
+msgstr "[green]L'objet a été supprimé avec succès"
+
+#: __main__.py:422
+msgid "[red]An error occurred. Unable to delete the object"
+msgstr "[red]Une erreur est survenur. Impossible de supprimer l'objet"
+
+#: __main__.py:429
+msgid "[1;39mNEW[0m"
+msgstr "[1;39mNOUVEAU[0m"
+
+#: __main__.py:462
+msgid "Yes"
+msgstr "Oui"
+
+#: __main__.py:462
+msgid "No"
+msgstr "Non"
+
+#: __main__.py:474 __main__.py:622 __main__.py:652 __main__.py:668
+#: __main__.py:681 __main__.py:693 __main__.py:706
+msgid "ID"
+msgstr "ID"
+
+#: __main__.py:475 __main__.py:653 __main__.py:669 __main__.py:682
+#: __main__.py:707
+msgid "Name"
+msgstr "Nom"
+
+#: __main__.py:476
+msgid "Duration"
+msgstr "Durée"
+
+#: __main__.py:477
+msgid "Status"
+msgstr "État"
+
+#: __main__.py:478
+msgid "Nmap"
+msgstr "Nmap"
+
+#: __main__.py:479
+msgid "Nessus"
+msgstr "Nessus"
+
+#: __main__.py:480
+msgid "Hosts"
+msgstr "Hôtes"
+
+#: __main__.py:483 __main__.py:484
+msgid "Done"
+msgstr "Fait"
+
+#: __main__.py:483 __main__.py:484
+msgid "To do"
+msgstr "À faire"
+
+#: __main__.py:492
+msgid "[red]Closed {} ago[/red]"
+msgstr "[red]Clos depuis {}[/red]"
+
+#: __main__.py:494
+msgid "[green]{} remaining[/green]"
+msgstr "[green]{} restant[/green]"
+
+#: __main__.py:505
+msgid ":two-thirty: [red]Closed {} ago"
+msgstr ":two-thirty: [red]Clos depuis {}"
+
+#: __main__.py:507
+msgid ":two-thirty: [green]{} remaining"
+msgstr ":two-thirty: [green]{} restant"
+
+#: __main__.py:509
+msgid " Nmap"
+msgstr " Nmap"
+
+#: __main__.py:510
+msgid " Nessus"
+msgstr " Nessus"
+
+#: __main__.py:513
+msgid ":book: [bold red]CodiMD not set"
+msgstr ":book: [bold red]CodiMD non renseigné"
+
+#: __main__.py:518
+msgid ":locked_with_key: [bold red]Credentials not set"
+msgstr ":locked_with_key: [bold red]Informations de connexion non renseignées"
+
+#: __main__.py:520
+msgid ":locked_with_key: Credentials > {}"
+msgstr ":locked_with_key: Informations de connexion > {}"
+
+#: __main__.py:522
+msgid ":bust_in_silhouette: [blue]Clients[/blue]"
+msgstr ":bust_in_silhouette: [blue]Clients[/blue]"
+
+#: __main__.py:526
+msgid "[bold]#{}[/bold] (save to update)"
+msgstr "[bold]#{}[/bold] (sauvegardez pour mettre à jour)"
+
+#: __main__.py:535
+msgid ":robot: [red]Pentesters[/red]"
+msgstr ":robot: [red]Pentesters[/red]"
+
+#: __main__.py:539 __main__.py:548 __main__.py:565
+msgid "#{} (save to update)"
+msgstr "#{} (sauvegardez pour mettre à jour)"
+
+#: __main__.py:544
+msgid ":desktop_computer: Scope"
+msgstr ":desktop_computer: Périmètre"
+
+#: __main__.py:561
+msgid ":spiral_notepad: [magenta]Activity"
+msgstr ":spiral_notepad: [magenta]Activité"
+
+#: __main__.py:570
+msgid "[bold]{} ago[/bold] - #{} - {}"
+msgstr "[bold]Il y a {}[/bold] - #{} - {}"
+
+#: __main__.py:592
+msgid "Model name"
+msgstr "Nom du modèle"
+
+#: __main__.py:593
+msgid "List"
+msgstr "Listage"
+
+#: __main__.py:594
+msgid "Create"
+msgstr "Création"
+
+#: __main__.py:595
+msgid "Read"
+msgstr "Lecture"
+
+#: __main__.py:596
+msgid "Update (full)"
+msgstr "Mise à jour (complète)"
+
+#: __main__.py:597
+msgid "Update (partial)"
+msgstr "Mise à jour (partielle)"
+
+#: __main__.py:598
+msgid "Delete"
+msgstr "Suppression"
+
+#: __main__.py:615
+msgid "Can upload host: {}"
+msgstr "Peut téléverser un hôte : {}"
+
+#: __main__.py:623
+msgid "Name (trigram)"
+msgstr "Nom (trigramme)"
+
+#: __main__.py:624
+msgid "Phone"
+msgstr "Téléphone"
+
+#: __main__.py:625
+msgid "City"
+msgstr "Ville"
+
+#: __main__.py:626 __main__.py:656
+msgid "Email address"
+msgstr "Adresse email"
+
+#: __main__.py:627
+msgid "Enabled"
+msgstr "Activé"
+
+#: __main__.py:628
+msgid "Roles"
+msgstr "Rôles"
+
+#: __main__.py:629
+msgid "Assigned missions"
+msgstr "Missions assignées"
+
+#: __main__.py:632
+msgid "[green]Yes"
+msgstr "[green]Oui"
+
+#: __main__.py:632
+msgid "[red]No"
+msgstr "[red]Non"
+
+#: __main__.py:636
+msgid "None"
+msgstr "Aucune"
+
+#: __main__.py:654
+msgid "Contact name"
+msgstr "Nom du contact"
+
+#: __main__.py:655
+msgid "Phone number"
+msgstr "Numéro de téléphone"
+
+#: __main__.py:670 __main__.py:683 __main__.py:694
+msgid "Description"
+msgstr "Description"
+
+#: __main__.py:671
+msgid "Remediation"
+msgstr "Contre-mesure"
+
+#: __main__.py:695
+msgid "Created"
+msgstr "Date de création"
+
+#: __main__.py:696
+msgid "Found"
+msgstr "Date de découverte"
+
+#: __main__.py:708
+msgid "Technology"
+msgstr "Technologie"
+
+#: __main__.py:709
+msgid "Checked"
+msgstr "Audité"
+
+#: __main__.py:710
+msgid "Vulnerabilities"
+msgstr "Vulnérabilités"
+
+#: __main__.py:720
+msgid "[bold]Impacts"
+msgstr "[bold]Impacts"
+
+#: __main__.py:731
+msgid "[bold red]Undefined[/bold red]"
+msgstr "[bold red]Non défini[/bold red]"
+
+#: __main__.py:761
+msgid "A command-line client for the SMERSH collaborative pentest tool"
+msgstr ""
+"Un client en ligne de commande pour l'outil de pentest collaboratif SMERSH"
+
+#: __main__.py:763
+msgid "The URL of the SMERSH backend server"
+msgstr "L'adresse URL du serveur SMERSH"
+
+#: __main__.py:770
+msgid "Welcome to the SMERSH command-line client"
+msgstr "Bienvenue sur le client en ligne de commande SMERSH"
+
+#: __main__.py:782
+msgid "Enter your username: "
+msgstr "Entez votre nom d'utilisateur : "
+
+#: __main__.py:783
+msgid "Enter your password (will not be echoed): "
+msgstr "Entrez votre mot de passe (ne sera pas affiché) : "
+
+#: __main__.py:787
+msgid "[green]:heavy_check_mark: Successfully logged in"
+msgstr "[green]:heavy_check_mark: Connecté avec succès"
+
+#: __main__.py:789
+msgid "[red]:cross_mark: Unable to log you in. Your credentials seem invalid"
+msgstr ""
+"[red]:cross_mark: Impossible de vous authentifier. Vos informations de "
+"connexion semblent incorrectes"
+
+#: __main__.py:791
+msgid ""
+"[red]Oh no. I can't connect to the specified URL. Please check there is no "
+"typo and that the host accepts connections then try again."
+msgstr ""
+"[red]Oh non. Impossible de se connecter à l'adresse URL spécifiée. Veuillez "
+"vérifier que vous n'avez pas fait de faute de frappe et que l'hôte accepte "
+"les connexions puis réessayez."
+
+#: __main__.py:794
+msgid "[red]An HTTP error occurred (code {}): {}"
+msgstr "[red]Une erreur HTTP est survenue : {}"
+
+#: __main__.py:797
+msgid ""
+"\n"
+"Bye"
+msgstr ""
+"\n"
+"Bye"
+
+#: utils/date.py:29
+msgid "day"
+msgid_plural "days"
+msgstr[0] "jour"
+msgstr[1] "jours"
+
+#: utils/date.py:31
+msgid "hour"
+msgid_plural "hours"
+msgstr[0] "heure"
+msgstr[1] "heures"
+
+#: utils/date.py:33
+msgid "minute"
+msgid_plural "minutes"
+msgstr[0] "minute"
+msgstr[1] "minutes"
+
+#: utils/date.py:35
+msgid "second"
+msgid_plural "seconds"
+msgstr[0] "seconde"
+msgstr[1] "secondes"
+
+#, python-brace-format
+#~ msgid "#{step} (save to update)"
+#~ msgstr "#{step} (sauvegardez pour mettre à jour)"
+
+#, python-brace-format
+#~ msgid "[red]An HTTP error occurred (code {e.response.status_code}): {e}"
+#~ msgstr ""
+#~ "[red]Une erreur HTTP est survenue (code {e.response.status_code}) : {e}"
