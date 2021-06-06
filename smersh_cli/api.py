@@ -163,23 +163,25 @@ class SmershAPI:
         self.user_agent = user_agent
         self.token = None
 
-    def request(self, method, path, body=None, content_type='application/ld+json'):
+    def request(self, method, path, body=None, content_type='application/ld+json', files=None):
         if path[0] != '/':
             path = '/' + path
 
         headers = {
             'Accept': 'application/ld+json',
-            'Content-Type': content_type,
             'User-Agent': self.user_agent
         }
+
+        if files is None:
+            headers['Content-Type'] = content_type
 
         if self.authenticated:
             headers['Authorization'] = f'Bearer {self.token}'
 
         if body is None:
-            response = requests.request(method, self.main_url + path, headers=headers)
+            response = requests.request(method, self.main_url + path, headers=headers, files=files)
         else:
-            response = requests.request(method, self.main_url + path, headers=headers, json=body)
+            response = requests.request(method, self.main_url + path, headers=headers, json=body, files=files)
 
         # This should never happen
         if response.status_code == 405:
@@ -226,6 +228,13 @@ class SmershAPI:
 
         self.token = response['token']
         return True
+
+    def upload_hosts(self, file_path, mission):
+        with open(file_path, 'rb') as inf:
+            hosts_data = inf.read()
+            data = {'missionName': mission.name}
+
+            return self.request('POST', '/api/upload/host', body=data, files=dict(filename=hosts_data))
 
     @property
     def authenticated(self):
