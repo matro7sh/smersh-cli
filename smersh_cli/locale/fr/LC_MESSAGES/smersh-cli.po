@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2021-06-06 14:06+0200\n"
-"PO-Revision-Date: 2021-06-06 14:11+0200\n"
+"POT-Creation-Date: 2021-06-06 16:01+0200\n"
+"PO-Revision-Date: 2021-06-06 16:01+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -366,17 +366,21 @@ msgstr "Entez votre nom d'utilisateur : "
 msgid "Enter your password (will not be echoed): "
 msgstr "Entrez votre mot de passe (ne sera pas affiché) : "
 
-#: __main__.py:787
-msgid "[green]:heavy_check_mark: Successfully logged in"
-msgstr "[green]:heavy_check_mark: Connecté avec succès"
+#: __main__.py:788
+msgid ""
+"[green]:heavy_check_mark: Hello, [bold]{}[/bold]. You are successfully "
+"logged in"
+msgstr ""
+"[green]:heavy_check_mark: Bonjour, [bold]{}[/bold]. Vous êtes connecté avec "
+"succès"
 
-#: __main__.py:789
+#: __main__.py:790
 msgid "[red]:cross_mark: Unable to log you in. Your credentials seem invalid"
 msgstr ""
 "[red]:cross_mark: Impossible de vous authentifier. Vos informations de "
 "connexion semblent incorrectes"
 
-#: __main__.py:791
+#: __main__.py:792
 msgid ""
 "[red]Oh no. I can't connect to the specified URL. Please check there is no "
 "typo and that the host accepts connections then try again."
@@ -385,11 +389,11 @@ msgstr ""
 "vérifier que vous n'avez pas fait de faute de frappe et que l'hôte accepte "
 "les connexions puis réessayez."
 
-#: __main__.py:794
+#: __main__.py:795
 msgid "[red]An HTTP error occurred (code {}): {}"
 msgstr "[red]Une erreur HTTP est survenue : {}"
 
-#: __main__.py:797
+#: __main__.py:798
 msgid ""
 "\n"
 "Bye"
