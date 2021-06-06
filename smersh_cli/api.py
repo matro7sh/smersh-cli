@@ -236,7 +236,16 @@ class SmershAPI:
         if not self.authenticated:
             return None
 
-        token_data = json.loads(base64.b64decode(self.token.split('.')[1]))
+        # HACK: Ugly fix because of a badly encoded token
+        token_data_b64 = self.token.split('.')[1]
+        missing_padding_count = (4 - (len(token_data_b64) % 4))
+
+        if missing_padding_count == 3:
+            token_data_b64 += 'A=='
+        else:
+            token_data_b64 += '=' * missing_padding_count
+
+        token_data = json.loads(base64.b64decode(token_data_b64))
         user_path = token_data['user']
 
         return int(user_path.split('/')[-1])
