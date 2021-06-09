@@ -211,6 +211,18 @@ def get_assign_parser(model):
     return parser
 
 
+def get_upload_parser():
+    parser = Cmd2ArgumentParser()
+
+    parser.add_argument(
+        'file_path',
+        type=str,
+        help=_('The path to the file to upload.')
+    )
+
+    return parser
+
+
 class App(Cmd):
 
     def __init__(self, api):
@@ -420,6 +432,28 @@ class App(Cmd):
                 self.update_prompt()
             else:
                 self.console.print(_('[red]An error occurred. Unable to delete the object'))
+
+    @with_argparser(get_upload_parser())
+    def do_upload(self, namespace):
+        file_path = namespace.file_path
+
+        if not (os.path.exists(file_path) and os.path.isfile(file_path)):
+            self.console.print(_('[red]The file {} does not exist or is not a regular file').format(file_path))
+            return
+
+        if isinstance(self.context, Mission):
+            response = self.api.upload_hosts(file_path, self.context)
+            rejected_domains = response['rejected_domains']
+
+            if len(rejected_domains) > 0:
+                self.console.print(_('[yellow]{} domains have been rejected: ').format(len(rejected_domains)))
+
+                for rejected_domain in rejected_domains:
+                    self.console.print(f'\t[yellow]{rejected_domain}')
+
+            self.console.print(_('[green]The hosts file has been successfully uploaded'))
+        else:
+            self.console.print(_('[red]You must be in a mission context to use this command'))
 
     def update_prompt(self):
         if self.context is None:
