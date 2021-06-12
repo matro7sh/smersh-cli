@@ -452,6 +452,7 @@ class App(Cmd):
                     self.console.print(f'\t[yellow]{rejected_domain}')
 
             self.console.print(_('[green]The hosts file has been successfully uploaded'))
+            self.context = self.context.fetch(self.api)
         else:
             self.console.print(_('[red]You must be in a mission context to use this command'))
 
