@@ -180,8 +180,10 @@ class SmershAPI:
 
         if body is None:
             response = requests.request(method, self.main_url + path, headers=headers, files=files)
+        elif files is None:
+            response = requests.request(method, self.main_url + path, headers=headers, json=body)
         else:
-            response = requests.request(method, self.main_url + path, headers=headers, json=body, files=files)
+            response = requests.request(method, self.main_url + path, headers=headers, data=body, files=files)
 
         # This should never happen
         if response.status_code == 405:
