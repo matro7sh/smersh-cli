@@ -824,7 +824,7 @@ def main():
     certificate = args.certificate
 
     if (certificate is not None) and (not os.path.exists(certificate)):
-        console.print(_('[red]The file {} does not exist.'.format(certificate)))
+        console.print(_('[red]The file {} does not exist.').format(certificate))
         sys.exit(1)
 
     if args.insecure:
