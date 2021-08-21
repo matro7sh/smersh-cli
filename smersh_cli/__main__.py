@@ -533,7 +533,12 @@ class App(Cmd):
         self.console.print(table)
 
     def print_single_mission(self, mission):
-        layout = Tree(f'#{mission.id} - [bold]{mission.name}[/bold] ({mission.mission_type.name})')
+        title = f'#{mission.id} - [bold]{mission.name}[/bold]'
+
+        if mission.mission_type is not None:
+            title += f' ({mission.mission_type.name})'
+
+        layout = Tree(title)
         negative, delta = date.format_delta(datetime.now(timezone.utc), date.date_from_iso(mission.end_date))
 
         if negative:
