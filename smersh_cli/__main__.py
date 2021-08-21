@@ -796,6 +796,8 @@ def parse_args():
     parser = argparse.ArgumentParser(description=_('A command-line client for the SMERSH collaborative pentest tool'))
 
     parser.add_argument('url', type=str, help=_('The URL of the SMERSH backend server'))
+    parser.add_argument('-c', dest='certificate', type=str, help=_('The path to the certificate used to authenticate the server'))
+    parser.add_argument('-k', '--insecure', dest='insecure', action='store_true', help=_('Disable server authentication. Please, do NOT use this option in production'))
 
     return parser.parse_args()
 
@@ -808,7 +810,18 @@ def print_hello(console):
 def main():
     args = parse_args()
     console = Console()
-    api = SmershAPI(args.url)
+    certificate = args.certificate
+
+    if (certificate is not None) and (not os.path.exists(certificate)):
+        console.print(_('[red]The path {} does not exist'.format(certificate)))
+        sys.exit(1)
+
+    if args.insecure:
+        certificate = False
+        console.print(_('[bold yellow]WARNING:[/bold yellow][yellow] The program is currently running in '
+                        '[bold yellow]INSECURE[/bold yellow] mode. Server authenticity will not be checked.'))
+
+    api = SmershAPI(args.url, certificate=certificate)
 
     print_hello(console)
 
