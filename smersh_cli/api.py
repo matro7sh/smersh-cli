@@ -2,8 +2,11 @@ import base64
 import json
 import requests
 from enum import IntFlag
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
 from .utils.json import clean_ldjson
+
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 
 class APIRoles(IntFlag):
@@ -155,12 +158,13 @@ class SmershAPI:
 
     DEFAULT_USER_AGENT = 'SmershPythonClient'
 
-    def __init__(self, main_url, user_agent=DEFAULT_USER_AGENT):
+    def __init__(self, main_url, user_agent=DEFAULT_USER_AGENT, certificate=None):
         if main_url.endswith('/'):
             main_url = main_url[:-1]
 
         self.main_url = main_url
         self.user_agent = user_agent
+        self.certificate = certificate
         self.token = None
 
     def request(self, method, path, body=None, content_type='application/ld+json', files=None):
@@ -179,11 +183,14 @@ class SmershAPI:
             headers['Authorization'] = f'Bearer {self.token}'
 
         if body is None:
-            response = requests.request(method, self.main_url + path, headers=headers, files=files)
+            response = requests.request(method, self.main_url + path, verify=self.certificate, headers=headers,
+                                        files=files)
         elif files is None:
-            response = requests.request(method, self.main_url + path, headers=headers, json=body)
+            response = requests.request(method, self.main_url + path, verify=self.certificate, headers=headers,
+                                        json=body)
         else:
-            response = requests.request(method, self.main_url + path, headers=headers, data=body, files=files)
+            response = requests.request(method, self.main_url + path, verify=self.certificate, headers=headers,
+                                        data=body, files=files)
 
         # This should never happen
         if response.status_code == 405:

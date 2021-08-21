@@ -1,15 +1,15 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2021-06-06 19:09+0200\n"
-"PO-Revision-Date: 2021-06-06 19:11+0200\n"
+"POT-Creation-Date: 2021-08-21 11:54+0200\n"
+"PO-Revision-Date: 2021-08-21 11:54+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.4.1\n"
+"X-Generator: Poedit 3.0\n"
 "X-Poedit-Basepath: ../../..\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Poedit-SearchPath-0: __main__.py\n"
@@ -56,7 +56,7 @@ msgstr "Nom de rôle invalide : {}"
 
 #: __main__.py:220
 msgid "The path to the file to upload."
-msgstr "Le chemin du fichier à téléverser"
+msgstr "Le chemin du fichier à téléverser."
 
 #: __main__.py:254
 msgid "[red]There is no context"
@@ -131,263 +131,288 @@ msgstr "[yellow]{} domaines ont été rejetés : "
 msgid "[green]The hosts file has been successfully uploaded"
 msgstr "[green]Le fichier d'hôtes à été téléversé avec succès"
 
-#: __main__.py:456
+#: __main__.py:457
 msgid "[red]You must be in a mission context to use this command"
 msgstr ""
 "[red]Vous devez sélectionner une mission avant d'utiliser cette commande"
 
-#: __main__.py:463
+#: __main__.py:464
 msgid "[1;39mNEW[0m"
 msgstr "[1;39mNOUVEAU[0m"
 
-#: __main__.py:496
+#: __main__.py:497
 msgid "Yes"
 msgstr "Oui"
 
-#: __main__.py:496
+#: __main__.py:497
 msgid "No"
 msgstr "Non"
 
-#: __main__.py:508 __main__.py:656 __main__.py:686 __main__.py:702
-#: __main__.py:715 __main__.py:727 __main__.py:740
+#: __main__.py:509 __main__.py:657 __main__.py:687 __main__.py:703
+#: __main__.py:716 __main__.py:728 __main__.py:741
 msgid "ID"
 msgstr "ID"
 
-#: __main__.py:509 __main__.py:687 __main__.py:703 __main__.py:716
-#: __main__.py:741
+#: __main__.py:510 __main__.py:688 __main__.py:704 __main__.py:717
+#: __main__.py:742
 msgid "Name"
 msgstr "Nom"
 
-#: __main__.py:510
+#: __main__.py:511
 msgid "Duration"
 msgstr "Durée"
 
-#: __main__.py:511
+#: __main__.py:512
 msgid "Status"
 msgstr "État"
 
-#: __main__.py:512
+#: __main__.py:513
 msgid "Nmap"
 msgstr "Nmap"
 
-#: __main__.py:513
+#: __main__.py:514
 msgid "Nessus"
 msgstr "Nessus"
 
-#: __main__.py:514
+#: __main__.py:515
 msgid "Hosts"
 msgstr "Hôtes"
 
-#: __main__.py:517 __main__.py:518
+#: __main__.py:518 __main__.py:519
 msgid "Done"
 msgstr "Fait"
 
-#: __main__.py:517 __main__.py:518
+#: __main__.py:518 __main__.py:519
 msgid "To do"
 msgstr "À faire"
 
-#: __main__.py:526
+#: __main__.py:527
 msgid "[red]Closed {} ago[/red]"
 msgstr "[red]Clos depuis {}[/red]"
 
-#: __main__.py:528
+#: __main__.py:529
 msgid "[green]{} remaining[/green]"
 msgstr "[green]{} restant[/green]"
 
-#: __main__.py:539
+#: __main__.py:540
 msgid ":two-thirty: [red]Closed {} ago"
 msgstr ":two-thirty: [red]Clos depuis {}"
 
-#: __main__.py:541
+#: __main__.py:542
 msgid ":two-thirty: [green]{} remaining"
 msgstr ":two-thirty: [green]{} restant"
 
-#: __main__.py:543
+#: __main__.py:544
 msgid " Nmap"
 msgstr " Nmap"
 
-#: __main__.py:544
+#: __main__.py:545
 msgid " Nessus"
 msgstr " Nessus"
 
-#: __main__.py:547
+#: __main__.py:548
 msgid ":book: [bold red]CodiMD not set"
 msgstr ":book: [bold red]CodiMD non renseigné"
 
-#: __main__.py:552
+#: __main__.py:553
 msgid ":locked_with_key: [bold red]Credentials not set"
 msgstr ":locked_with_key: [bold red]Informations de connexion non renseignées"
 
-#: __main__.py:554
+#: __main__.py:555
 msgid ":locked_with_key: Credentials > {}"
 msgstr ":locked_with_key: Informations de connexion > {}"
 
-#: __main__.py:556
+#: __main__.py:557
 msgid ":bust_in_silhouette: [blue]Clients[/blue]"
 msgstr ":bust_in_silhouette: [blue]Clients[/blue]"
 
-#: __main__.py:560
+#: __main__.py:561
 msgid "[bold]#{}[/bold] (save to update)"
 msgstr "[bold]#{}[/bold] (sauvegardez pour mettre à jour)"
 
-#: __main__.py:569
+#: __main__.py:570
 msgid ":robot: [red]Pentesters[/red]"
 msgstr ":robot: [red]Pentesters[/red]"
 
-#: __main__.py:573 __main__.py:582 __main__.py:599
+#: __main__.py:574 __main__.py:583 __main__.py:600
 msgid "#{} (save to update)"
 msgstr "#{} (sauvegardez pour mettre à jour)"
 
-#: __main__.py:578
+#: __main__.py:579
 msgid ":desktop_computer: Scope"
 msgstr ":desktop_computer: Périmètre"
 
-#: __main__.py:595
+#: __main__.py:596
 msgid ":spiral_notepad: [magenta]Activity"
 msgstr ":spiral_notepad: [magenta]Activité"
 
-#: __main__.py:604
+#: __main__.py:605
 msgid "[bold]{} ago[/bold] - #{} - {}"
 msgstr "[bold]Il y a {}[/bold] - #{} - {}"
 
-#: __main__.py:626
+#: __main__.py:627
 msgid "Model name"
 msgstr "Nom du modèle"
 
-#: __main__.py:627
+#: __main__.py:628
 msgid "List"
 msgstr "Listage"
 
-#: __main__.py:628
+#: __main__.py:629
 msgid "Create"
 msgstr "Création"
 
-#: __main__.py:629
+#: __main__.py:630
 msgid "Read"
 msgstr "Lecture"
 
-#: __main__.py:630
+#: __main__.py:631
 msgid "Update (full)"
 msgstr "Mise à jour (complète)"
 
-#: __main__.py:631
+#: __main__.py:632
 msgid "Update (partial)"
 msgstr "Mise à jour (partielle)"
 
-#: __main__.py:632
+#: __main__.py:633
 msgid "Delete"
 msgstr "Suppression"
 
-#: __main__.py:649
+#: __main__.py:650
 msgid "Can upload host: {}"
 msgstr "Peut téléverser un hôte : {}"
 
-#: __main__.py:657
+#: __main__.py:658
 msgid "Name (trigram)"
 msgstr "Nom (trigramme)"
 
-#: __main__.py:658
+#: __main__.py:659
 msgid "Phone"
 msgstr "Téléphone"
 
-#: __main__.py:659
+#: __main__.py:660
 msgid "City"
 msgstr "Ville"
 
-#: __main__.py:660 __main__.py:690
+#: __main__.py:661 __main__.py:691
 msgid "Email address"
 msgstr "Adresse email"
 
-#: __main__.py:661
+#: __main__.py:662
 msgid "Enabled"
 msgstr "Activé"
 
-#: __main__.py:662
+#: __main__.py:663
 msgid "Roles"
 msgstr "Rôles"
 
-#: __main__.py:663
+#: __main__.py:664
 msgid "Assigned missions"
 msgstr "Missions assignées"
 
-#: __main__.py:666
+#: __main__.py:667
 msgid "[green]Yes"
 msgstr "[green]Oui"
 
-#: __main__.py:666
+#: __main__.py:667
 msgid "[red]No"
 msgstr "[red]Non"
 
-#: __main__.py:670
+#: __main__.py:671
 msgid "None"
 msgstr "Aucune"
 
-#: __main__.py:688
+#: __main__.py:689
 msgid "Contact name"
 msgstr "Nom du contact"
 
-#: __main__.py:689
+#: __main__.py:690
 msgid "Phone number"
 msgstr "Numéro de téléphone"
 
-#: __main__.py:704 __main__.py:717 __main__.py:728
+#: __main__.py:705 __main__.py:718 __main__.py:729
 msgid "Description"
 msgstr "Description"
 
-#: __main__.py:705
+#: __main__.py:706
 msgid "Remediation"
 msgstr "Contre-mesure"
 
-#: __main__.py:729
+#: __main__.py:730
 msgid "Created"
 msgstr "Date de création"
 
-#: __main__.py:730
+#: __main__.py:731
 msgid "Found"
 msgstr "Date de découverte"
 
-#: __main__.py:742
+#: __main__.py:743
 msgid "Technology"
 msgstr "Technologie"
 
-#: __main__.py:743
+#: __main__.py:744
 msgid "Checked"
 msgstr "Audité"
 
-#: __main__.py:744
+#: __main__.py:745
 msgid "Vulnerabilities"
 msgstr "Vulnérabilités"
 
-#: __main__.py:754
+#: __main__.py:755
 msgid "[bold]Impacts"
 msgstr "[bold]Impacts"
 
-#: __main__.py:765
+#: __main__.py:766
 msgid "[bold red]Undefined[/bold red]"
 msgstr "[bold red]Non défini[/bold red]"
 
-#: __main__.py:795
+#: __main__.py:796
 msgid "A command-line client for the SMERSH collaborative pentest tool"
 msgstr ""
 "Un client en ligne de commande pour l'outil de pentest collaboratif SMERSH"
 
-#: __main__.py:797
+#: __main__.py:798
 msgid "The URL of the SMERSH backend server"
 msgstr "L'adresse URL du serveur SMERSH"
 
-#: __main__.py:804
+#: __main__.py:803
+msgid "The path to the certificate used to authenticate the server"
+msgstr "Le chemin du certificat à utiliser pour authentifier le serveur"
+
+#: __main__.py:810
+msgid ""
+"Disable server authentication. Please, do NOT use this option in production"
+msgstr ""
+"Désactive l'authentification du serveur. N'utilisez PAS cette option en "
+"production"
+
+#: __main__.py:818
 msgid "Welcome to the SMERSH command-line client"
 msgstr "Bienvenue sur le client en ligne de commande SMERSH"
 
-#: __main__.py:816
+#: __main__.py:827
+msgid "[red]The file {} does not exist."
+msgstr "[red]Le fichier {} n'existe pas."
+
+#: __main__.py:832
+msgid ""
+"[bold yellow]WARNING:[/bold yellow][yellow] The program is currently running "
+"in [bold yellow]INSECURE[/bold yellow] mode. Server authenticity will not be "
+"checked."
+msgstr ""
+"[bold yellow]ATTENTION:[/bold yellow][yellow] Le programme fonctionne en "
+"mode [bold yellow]INSECURE[/bold yellow]. L'authenticité du serveur ne sera "
+"pas vérifiée."
+
+#: __main__.py:841
 msgid "Enter your username: "
 msgstr "Entez votre nom d'utilisateur : "
 
-#: __main__.py:817
+#: __main__.py:842
 msgid "Enter your password (will not be echoed): "
 msgstr "Entrez votre mot de passe (ne sera pas affiché) : "
 
-#: __main__.py:822
+#: __main__.py:847
 msgid ""
 "[green]:heavy_check_mark: Hello, [bold]{}[/bold]. You are successfully "
 "logged in"
@@ -395,13 +420,13 @@ msgstr ""
 "[green]:heavy_check_mark: Bonjour, [bold]{}[/bold]. Vous êtes connecté avec "
 "succès"
 
-#: __main__.py:824
+#: __main__.py:849
 msgid "[red]:cross_mark: Unable to log you in. Your credentials seem invalid"
 msgstr ""
 "[red]:cross_mark: Impossible de vous authentifier. Vos informations de "
 "connexion semblent incorrectes"
 
-#: __main__.py:826
+#: __main__.py:851
 msgid ""
 "[red]Oh no. I can't connect to the specified URL. Please check there is no "
 "typo and that the host accepts connections then try again."
@@ -410,11 +435,11 @@ msgstr ""
 "vérifier que vous n'avez pas fait de faute de frappe et que l'hôte accepte "
 "les connexions puis réessayez."
 
-#: __main__.py:829
+#: __main__.py:854
 msgid "[red]An HTTP error occurred (code {}): {}"
 msgstr "[red]Une erreur HTTP est survenue : {}"
 
-#: __main__.py:832
+#: __main__.py:857
 msgid ""
 "\n"
 "Bye"
