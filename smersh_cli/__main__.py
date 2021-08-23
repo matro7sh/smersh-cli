@@ -154,7 +154,7 @@ def get_assign_parser(model):
         add_bool_subparser(subparsers, 'nessus')
         add_bool_subparser(subparsers, 'nmap_filer')
         add_bool_subparser(subparsers, 'nessus_filer')
-        add_object_subparser(subparsers, 'mission_type')
+        # add_object_subparser(subparsers, 'mission_type')
         add_str_subparser(subparsers, 'credentials')
         add_list_subparser(subparsers, 'clients', item_type=object_id_checker)
         add_list_subparser(subparsers, 'steps', item_type=object_id_checker)
@@ -184,7 +184,7 @@ def get_assign_parser(model):
         add_str_subparser(subparsers, 'remediation')
         add_object_subparser(subparsers, 'vuln_type')
         add_object_subparser(subparsers, 'impact')
-        add_list_subparser(subparsers, 'host_vulns', item_type=object_id_checker)
+        # add_list_subparser(subparsers, 'host_vulns', item_type=object_id_checker)
 
     elif isinstance(model, PositivePoint) or isinstance(model, NegativePoint):
         add_str_subparser(subparsers, 'name')
@@ -533,7 +533,12 @@ class App(Cmd):
         self.console.print(table)
 
     def print_single_mission(self, mission):
-        layout = Tree(f'#{mission.id} - [bold]{mission.name}[/bold] ({mission.mission_type.name})')
+        title = f'#{mission.id} - [bold]{mission.name}[/bold]'
+
+        # if mission.mission_type is not None:
+        #     title += f' ({mission.mission_type.name})'
+
+        layout = Tree(title)
         negative, delta = date.format_delta(datetime.now(timezone.utc), date.date_from_iso(mission.end_date))
 
         if negative:

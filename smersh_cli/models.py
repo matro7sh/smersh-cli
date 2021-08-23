@@ -196,7 +196,7 @@ class Mission(Model):
     nessus: Optional[bool] = False
     nmap_filer: Optional[bool] = False
     nessus_filer: Optional[bool] = False
-    mission_type: Optional['MissionType'] = None
+    # mission_type: Optional['MissionType'] = None
     credentials: Optional[str] = None
     clients: Optional[List['Client']] = default_field([])
     steps: Optional[List['Step']] = default_field([])
@@ -365,4 +365,4 @@ class Vuln(Model):
     remediation: Optional[str] = None
     vuln_type: Optional['VulnType'] = None
     impact: Optional['Impact'] = None
-    host_vulns: Optional[List['HostVuln']] = default_field([])
+    # host_vulns: Optional[List['HostVuln']] = default_field([])
